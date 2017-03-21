@@ -19,19 +19,11 @@ public slots:
 
 	void on_actionOpen_triggered();
 	void openFiles(QStringList fnames);
-	void addPhys(nPhysD* my_phys);
+	void addPhys(nPhysD* my_phys,QTreeWidgetItem *item);
 	void delPhys(QObject* my_phys);
 
-//    void addPan(nGenericPan* pan) {
-//        panlist.push_back(pan);
-//    }
-//
-//    void delPan(nGenericPan* pan) {
-//        panlist.removeAll(pan);
-//    }
-
-private:
-//    QList<nGenericPan*> panlist;
+	void on_treeWidget_itemPressed(QTreeWidgetItem* item, int i);
+	void on_treeWidget_itemSelectionChanged();
 
 };
 
