@@ -97,6 +97,7 @@ nView::nView (QWidget *parent) : QGraphicsView (parent),
 }
 
 void nView::closeEvent(QCloseEvent *event) {
+	qDebug() << "nview save defaults";
 	QSettings my_set("neutrino","");
 	my_set.beginGroup("nPreferences");
 	my_set.setValue("mouseShape", my_mouse.my_shape);
@@ -112,6 +113,28 @@ void nView::closeEvent(QCloseEvent *event) {
 
 void nView::setLockColors(bool val) {
 	lockColors=val;
+}
+
+void nView::delPhys(QObject *my_obj) {
+	qDebug() << "here" << physList.size();
+	nPhysD* my_phys=static_cast<nPhysD*>(my_obj);
+	qDebug() << "deleting " << my_phys;
+	if (my_phys && physList.contains(my_phys)) {
+		qDebug() << "here";
+		int pos=std::max(physList.indexOf(my_phys)-1,0);
+		physList.removeAll(my_phys);
+		if (physList.size()==0) {
+			currentBuffer=nullptr;
+			my_pixitem.setPixmap(QPixmap(":icons/icon.png"));
+		} else {
+			if (my_phys==currentBuffer)  {
+				showPhys(physList.at(pos));
+			}
+		}
+		setSize();
+		qDebug() << "here" << physList.size();
+	}
+	qDebug() << "here end delete";
 }
 
 void nView::showPhys(nPhysD *my_phys) {
@@ -161,7 +184,7 @@ void nView::showPhys(nPhysD *my_phys) {
 
 void
 nView::createQimage() {
-//    QApplication::processEvents();
+	//    QApplication::processEvents();
 	DEBUG("<><<><><");
 	if (currentBuffer && currentBuffer->getSurf()>0) {
 		DEBUG("<><<><><");
@@ -209,7 +232,7 @@ void nView::setZoomFactor(int val) {
 
 bool nView::event(QEvent *event)
 {
-//    qDebug() << event;
+	//    qDebug() << event;
 	if (event->type() == QEvent::Gesture)
 		return gestureEvent(static_cast<QGestureEvent*>(event));
 	return QGraphicsView::event(event);
@@ -230,18 +253,18 @@ void nView::swipeTriggered(QSwipeGesture *gesture)
 	if (gesture->state() == Qt::GestureFinished) {
 		//		qDebug() << "angle" << gesture->swipeAngle() << gesture->horizontalDirection() + gesture->verticalDirection();
 		switch (gesture->horizontalDirection() + gesture->verticalDirection()) {
-		case QSwipeGesture::Left:
-			previousColorTable();
-			break;
-		case QSwipeGesture::Right:
-			nextColorTable();
-			break;
-		case QSwipeGesture::Up:
-			prevBuffer();
-			break;
-		case QSwipeGesture::Down:
-			nextBuffer();
-			break;
+			case QSwipeGesture::Left:
+				previousColorTable();
+				break;
+			case QSwipeGesture::Right:
+				nextColorTable();
+				break;
+			case QSwipeGesture::Up:
+				prevBuffer();
+				break;
+			case QSwipeGesture::Down:
+				nextBuffer();
+				break;
 		}
 		update();
 	}
@@ -299,37 +322,37 @@ void nView::keyPressEvent (QKeyEvent *e)
 		//		item->keyPressEvent(e);
 		QGraphicsObject *itemObj=item->toGraphicsObject();
 		switch (e->key()) {
-		case Qt::Key_Backspace: {
-			if (itemObj && itemObj->property("parentPanControlLevel").toInt()==0){
-				emit logging(tr("Removed ")+item->toolTip());
-				itemObj->deleteLater();
-			} else {
-				emit logging(tr("Can't remove ")+item->toolTip());
-			}
-			break;
-		}
+			case Qt::Key_Backspace: {
+					if (itemObj && itemObj->property("parentPanControlLevel").toInt()==0){
+						emit logging(tr("Removed ")+item->toolTip());
+						itemObj->deleteLater();
+					} else {
+						emit logging(tr("Can't remove ")+item->toolTip());
+					}
+					break;
+				}
 		}
 	}
 	if (!insideItem && !(e->modifiers() & Qt::ControlModifier)) {
 		QPointF delta(0,0);
 		switch (e->key()) {
-		case Qt::Key_Up:
-			delta=QPointF(0,-1);
-			break;
-		case Qt::Key_Down:
-			delta=QPointF(0,+1);
-			break;
-		case Qt::Key_Left:
-			delta=QPointF(-1,0);
-			break;
-		case Qt::Key_Right:
-			delta=QPointF(+1,0);
-			break;
-		case Qt::Key_Return:
-			emit mousePressEvent_sig(my_mouse.pos());
-			break;
-		default:
-			break;
+			case Qt::Key_Up:
+				delta=QPointF(0,-1);
+				break;
+			case Qt::Key_Down:
+				delta=QPointF(0,+1);
+				break;
+			case Qt::Key_Left:
+				delta=QPointF(-1,0);
+				break;
+			case Qt::Key_Right:
+				delta=QPointF(+1,0);
+				break;
+			case Qt::Key_Return:
+				emit mousePressEvent_sig(my_mouse.pos());
+				break;
+			default:
+				break;
 		}
 		if (delta!=QPointF(0,0)) {
 			if (e->modifiers() & Qt::ShiftModifier) delta*=5;
@@ -341,108 +364,97 @@ void nView::keyPressEvent (QKeyEvent *e)
 
 	if (e->modifiers() & Qt::ControlModifier) {
 		switch (e->key()) {
-		case Qt::Key_Up:
-			prevBuffer();
-			break;
-		case Qt::Key_Down:
-			nextBuffer();
-			break;
-		case Qt::Key_Left:
-			previousColorTable();
-			break;
-		case Qt::Key_Right:
-			nextColorTable();
-			break;
-		case Qt::Key_D:
-			if (currentBuffer) {
-				int pos=std::max(physList.indexOf(currentBuffer)-1,0);
-				physList.removeAll(currentBuffer);
-				currentBuffer->deleteLater();
-				currentBuffer=nullptr;
-				if (physList.size()==0) {
-					my_pixitem.setPixmap(QPixmap(":icons/icon.png"));
-				} else {
-					showPhys(physList.at(pos));
-				}
-				setSize();
-			}
-			break;
-		default:
-			break;
+			case Qt::Key_Up:
+				prevBuffer();
+				break;
+			case Qt::Key_Down:
+				nextBuffer();
+				break;
+			case Qt::Key_Left:
+				previousColorTable();
+				break;
+			case Qt::Key_Right:
+				nextColorTable();
+				break;
+			case Qt::Key_D:
+				delPhys(currentBuffer);
+				break;
+			default:
+				break;
 		}
 	}
 
 	// cycle over items
 	switch (e->key()) {
-	case Qt::Key_Tab: {
-		QList<QGraphicsItem *> lista;
-		foreach (QGraphicsItem *oggetto, scene()->items() ) {
-			if (oggetto->type() > QGraphicsItem::UserType) {
-				if (oggetto->isVisible()) lista << oggetto;
-			}
-		}
-		scene()->clearSelection();
-		if (lista.size()>0) {
-			int found=0;
-			for (int i=lista.size()-1; i >=0; i-- ) {
-				if (lista.at(i)->hasFocus()) found=(i+lista.size()-1)%lista.size();
-			}
+		case Qt::Key_Tab: {
+				QList<QGraphicsItem *> lista;
+				foreach (QGraphicsItem *oggetto, scene()->items() ) {
+					if (oggetto->type() > QGraphicsItem::UserType) {
+						if (oggetto->isVisible()) lista << oggetto;
+					}
+				}
+				scene()->clearSelection();
+				if (lista.size()>0) {
+					int found=0;
+					for (int i=lista.size()-1; i >=0; i-- ) {
+						if (lista.at(i)->hasFocus()) found=(i+lista.size()-1)%lista.size();
+					}
 
-			lista.at(found)->setFocus(Qt::TabFocusReason);
-		}
-		break;
-	}
-	case Qt::Key_Plus:
-		zoomIn();
-		break;
-	case Qt::Key_Minus:
-		zoomOut();
-		break;
-	case Qt::Key_Equal:
-		zoomEq();
-		break;
-	case Qt::Key_M: {
-		if (!(e->modifiers() & Qt::ShiftModifier)) {
-			setMouseShape(my_mouse.my_shape+1);
-		}
-		break;
-	}
-	case Qt::Key_C:
-		if ((e->modifiers() & Qt::ControlModifier))
-			QApplication::clipboard()->setPixmap(QPixmap::grabWidget(this), QClipboard::Clipboard)   ;
-		break;
-	case Qt::Key_A: {
-		if (e->modifiers() & Qt::ShiftModifier) {
-			foreach (nPhysD* phys, physList) {
-				currentBuffer->prop["display_range"]=currentBuffer->get_min_max();
-				setGamma(1);
-				emit bufferChanged(phys);
+					lista.at(found)->setFocus(Qt::TabFocusReason);
+				}
+				break;
 			}
-		} else {
+		case Qt::Key_Plus:
+			zoomIn();
+			break;
+		case Qt::Key_Minus:
+			zoomOut();
+			break;
+		case Qt::Key_Equal:
+			zoomEq();
+			break;
+		case Qt::Key_M: {
+				if (!(e->modifiers() & Qt::ShiftModifier)) {
+					setMouseShape(my_mouse.my_shape+1);
+				}
+				break;
+			}
+		case Qt::Key_C:
+			if ((e->modifiers() & Qt::ControlModifier))
+				QApplication::clipboard()->setPixmap(QPixmap::grabWidget(this), QClipboard::Clipboard)   ;
+			break;
+		case Qt::Key_A: {
+				if (e->modifiers() & Qt::ShiftModifier) {
+					foreach (nPhysD* phys, physList) {
+						currentBuffer->prop["display_range"]=currentBuffer->get_min_max();
+						setGamma(1);
+						emit bufferChanged(phys);
+					}
+				} else {
+					if (currentBuffer) {
+						currentBuffer->prop["display_range"]=currentBuffer->get_min_max();
+						setGamma(1);
+						emit updatecolorbar();
+					}
+				}
+				createQimage();
+				break;
+			}
+		case Qt::Key_Less:
 			if (currentBuffer) {
-				currentBuffer->prop["display_range"]=currentBuffer->get_min_max();
-				setGamma(1);
-				emit updatecolorbar();
+				setGamma(int(currentBuffer->prop["gamma"])-1);
 			}
-		}
-		createQimage();
-		break;
-	}
-	case Qt::Key_Less:
-		if (currentBuffer) {
-			setGamma(int(currentBuffer->prop["gamma"])-1);
-		}
-		break;
-	case Qt::Key_Greater:
-		if (currentBuffer) {
-			setGamma(int(currentBuffer->prop["gamma"])+1);
-		}
-		break;
-	case Qt::Key_Period:
-		if (currentBuffer) {
-			setGamma(1);
-		}
-		break;
+			break;
+		case Qt::Key_Greater:
+			if (currentBuffer) {
+				setGamma(int(currentBuffer->prop["gamma"])+1);
+			}
+			break;
+		case Qt::Key_Period:
+			if (currentBuffer) {
+				setGamma(1);
+			}
+			break;
 	}
 
 	update();
@@ -498,18 +510,18 @@ void nView::keyReleaseEvent (QKeyEvent *e) {
 
 void nView::wheelEvent(QWheelEvent *e) {
 	switch (e->modifiers()) {
-	case Qt::ControlModifier:
-		if (e->orientation()==Qt::Vertical) {
-			if (e->delta()>0) {
-				incrzoom(1.05);
-			} else {
-				incrzoom(1.0/1.05);
+		case Qt::ControlModifier:
+			if (e->orientation()==Qt::Vertical) {
+				if (e->delta()>0) {
+					incrzoom(1.05);
+				} else {
+					incrzoom(1.0/1.05);
+				}
 			}
-		}
-		break;
-	default:
-		QGraphicsView::wheelEvent(e);
-		break;
+			break;
+		default:
+			QGraphicsView::wheelEvent(e);
+			break;
 	}
 }
 
