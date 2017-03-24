@@ -5,7 +5,7 @@
 #include <vector>
 
 int main(int , char **) {
-	QFile fileout("../../src/gui/graphics/neutrinoPalettes.cc");
+	QFile fileout("../../src/gui/graphics/nViewPalettes.cc");
 	fileout.open(QIODevice::WriteOnly | QIODevice::Text);
 	QTextStream outs(&fileout);
     outs << "#include \"nView.h\"\nvoid nView::build_colormap() \{\n";

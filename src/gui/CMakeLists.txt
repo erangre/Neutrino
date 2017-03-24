@@ -52,8 +52,7 @@ endif()
 set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTOUIC ON)
 
-file(GLOB UIS ${CMAKE_CURRENT_SOURCE_DIR}/../UIs/*.ui holderGUI/*.ui)
-
+file(GLOB UIS ${CMAKE_CURRENT_SOURCE_DIR}/../UIs/*.ui holderGUI/*.ui genericPan/*.ui)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -63,12 +62,12 @@ list (APPEND SOURCES
     main.cc
     nApp.cc
     nPhysD.cc
-    nHolder.cc
     HolderGUI/HolderGUI.cc
     graphics/nView.cc
-    graphics/neutrinoPalettes.cc
+	graphics/nViewPalettes.cc
     graphics/nMouse.cc
     graphics/nTics.cc
+#	genericPan/nGenericPan.cc
 
 #     neutrino.cc
 #     nGenericPan.cc panThread.cc nPluginLoader.cc nPlug.cc nPanPlug.cc
@@ -91,6 +90,7 @@ list (APPEND SOURCES
 #     nHolder.cc
     )
 
+# this is just to make the appera on QtCreator
 list (APPEND HEADERS
     ../phys/nPhysImageF.h
     ../phys/physData.h

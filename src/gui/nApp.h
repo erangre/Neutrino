@@ -1,7 +1,7 @@
 /*
  *
  *    Copyright (C) 2013 Alessandro Flacco, Tommaso Vinci All Rights Reserved
- * 
+ *
  *    This file is part of neutrino.
  *
  *    Neutrino is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  *    You should have received a copy of the GNU Lesser General Public License
  *    along with neutrino.  If not, see <http://www.gnu.org/licenses/>.
  *
- *    Contact Information: 
+ *    Contact Information:
  *	Alessandro Flacco <alessandro.flacco@polytechnique.edu>
  *	Tommaso Vinci <tommaso.vinci@polytechnique.edu>
  *
@@ -29,27 +29,27 @@
 #include <QSettings>
 #include <QDebug>
 
-class neutrino;
+class holderGUI;
 
 class nApp : public QApplication {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    nApp( int &argc, char **argv );
+	nApp( int &argc, char **argv );
 
-
+	QPointer<holderGUI> my_holder;
 protected:
-    virtual bool notify(QObject *rec, QEvent *ev) override;
+	virtual bool notify(QObject *rec, QEvent *ev) override;
 
 	bool event(QEvent *ev) override;
 
 
 public slots:
-//    QList<neutrino*> neus();
+	//    QList<neutrino*> neus();
 
-    static void changeThreads(int);
-    static void changeLocale(QLocale locale);
-    static bool localeLessThan(const QLocale&, const QLocale&);
-    static QString localeToString(const QLocale &);
+	static void changeThreads(int);
+	static void changeLocale(QLocale locale);
+	static bool localeLessThan(const QLocale&, const QLocale&);
+	static QString localeToString(const QLocale &);
 };
 #endif
 

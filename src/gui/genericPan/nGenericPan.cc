@@ -534,17 +534,17 @@ void nGenericPan::closeEvent(QCloseEvent*){
             }
         }
     }
-	foreach (QWidget *widget, QApplication::allWidgets()) {
-		neutrino *neu=qobject_cast<neutrino *>(widget);
-		if (neu==nparent) {
-			disconnect(nparent, SIGNAL(mouseAtMatrix(QPointF)), this, SLOT(mouseAtMatrix(QPointF)));
-			disconnect(nparent, SIGNAL(mouseAtWorld(QPointF)), this, SLOT(mouseAtWorld(QPointF)));
+//	foreach (QWidget *widget, QApplication::allWidgets()) {
+//		neutrino *neu=qobject_cast<neutrino *>(widget);
+//		if (neu==nparent) {
+//			disconnect(nparent, SIGNAL(mouseAtMatrix(QPointF)), this, SLOT(mouseAtMatrix(QPointF)));
+//			disconnect(nparent, SIGNAL(mouseAtWorld(QPointF)), this, SLOT(mouseAtWorld(QPointF)));
 			
-			disconnect(nparent, SIGNAL(nZoom(double)), this, SLOT(nZoom(double)));
+//			disconnect(nparent, SIGNAL(nZoom(double)), this, SLOT(nZoom(double)));
 			
-            disconnect(nparent->my_w->my_view, SIGNAL(mousePressEvent_sig(QPointF)), this, SLOT(imageMousePress(QPointF)));
-            disconnect(nparent->my_w->my_view, SIGNAL(mouseReleaseEvent_sig(QPointF)), this, SLOT(imageMouseRelease(QPointF)));
-			disconnect(nparent, SIGNAL(bufferChanged(nPhysD *)), this, SLOT(bufferChanged(nPhysD *)));
+//            disconnect(nparent->my_w->my_view, SIGNAL(mousePressEvent_sig(QPointF)), this, SLOT(imageMousePress(QPointF)));
+//            disconnect(nparent->my_w->my_view, SIGNAL(mouseReleaseEvent_sig(QPointF)), this, SLOT(imageMouseRelease(QPointF)));
+//			disconnect(nparent, SIGNAL(bufferChanged(nPhysD *)), this, SLOT(bufferChanged(nPhysD *)));
 		}
 	}
 }

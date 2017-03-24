@@ -1,7 +1,7 @@
 #include "nPhysD.h"
 
 nPhysD::nPhysD(physD *ref) : physD(*ref) {
-	DEBUG("\n\n\n\n\n\n------------------>>>>>>>>>>>>>" << ref->getName());
+	delete ref;
 	DEBUG("------------------>>>>>>>>>>>>>" << getName());
 }
 

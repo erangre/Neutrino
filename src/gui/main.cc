@@ -30,7 +30,6 @@
 #include <QtGui>
 
 #include "nApp.h"
-#include "holderGUI.h"
 
 #include <QTranslator>
 
@@ -55,12 +54,6 @@ int main(int argc, char **argv)
     qSetMessagePattern("%{function}:%{line} : %{message}");
 
     nApp my_app(argc,argv);
-
-    QStringList args=my_app.arguments();
-    args.removeFirst();
-    
-    holderGUI *my_gui= new holderGUI();
-	my_gui->openFiles(args);
 
     return my_app.exec();
 

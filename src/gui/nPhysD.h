@@ -2,6 +2,7 @@
 #define __nPhysD
 
 #include "nPhysImageF.h"
+#include "nPhysFormats.h"
 #include <QtCore>
 #include <list>
 
@@ -9,7 +10,8 @@ class nPhysD : public QObject, public physD  {
     Q_OBJECT
 
 public:
-	nPhysD(physD *ref) ;
+	nPhysD(physD *ref);
+	nPhysD(physD &ref);
 
 	void TscanBrightness();
 	const unsigned char *to_uchar_palette(std::vector<unsigned char>  &my_palette, std::string palette_name);

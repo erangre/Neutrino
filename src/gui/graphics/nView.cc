@@ -22,7 +22,14 @@
  *	Tommaso Vinci <tommaso.vinci@polytechnique.edu>
  *
  */
+#include <QMenu>
 #include "nView.h"
+#include "holderGUI.h"
+
+nView::~nView () {
+	saveDefaults();
+}
+
 
 nView::nView (QWidget *parent) : QGraphicsView (parent),
     my_scene(this),
@@ -97,6 +104,11 @@ nView::nView (QWidget *parent) : QGraphicsView (parent),
 }
 
 void nView::closeEvent(QCloseEvent *event) {
+	saveDefaults();
+	event->accept();
+}
+
+void nView::saveDefaults() {
 	qDebug() << "nview save defaults";
 	QSettings my_set("neutrino","");
 	my_set.beginGroup("nPreferences");
@@ -107,9 +119,54 @@ void nView::closeEvent(QCloseEvent *event) {
 	my_set.setValue("rulerColor", my_tics.rulerColor);
 	my_set.setValue("colorTable", colorTable);
 	my_set.endGroup();
-	event->accept();
 }
 
+void nView::showAction() {
+	QAction *act=qobject_cast<QAction*>(sender());
+	if (act) {
+		nPhysD *my_phys=act->data().value<nPhysD*>();
+		if (my_phys) {
+			showPhys(my_phys);
+		}
+	}
+}
+
+void nView::contextMenuEvent(QContextMenuEvent *ev) {
+	qDebug() << "here";
+	QMenu *my_menu=new QMenu(this);
+	my_menu->setAttribute(Qt::WA_DeleteOnClose);
+	QMenu *phys_menu= my_menu->addMenu(QIcon(":icons/icon.png"),"Images");
+	QFont my_font=phys_menu->font();
+	my_font.setPointSize(10);
+	phys_menu->setFont(my_font);
+	for(auto& phys: physList) {
+		QAction *act=new QAction(phys_menu);
+		act->setText(QString::fromStdString(phys->getName()));
+		act->setFont(my_font);
+		act->setData(QVariant::fromValue(phys));
+		phys_menu->addAction(act);
+		connect(act, SIGNAL(triggered()), this, SLOT(showAction()));
+	}
+	QMenu *colorbar_menu= my_menu->addMenu(QIcon(":icons/colors.png"),"ColorBar");
+	colorbar_menu->setFont(my_font);
+	for(auto& pal: nPalettes.keys()) {
+		QAction *act=new QAction(colorbar_menu);
+		act->setText(pal);
+		act->setFont(my_font);
+		act->setData(pal);
+		colorbar_menu->addAction(act);
+		connect(act, SIGNAL(triggered()), this, SLOT(actionChangeColorTable()));
+	}
+	my_menu->exec(ev->globalPos());
+
+}
+
+void nView::actionChangeColorTable() {
+	QAction *act=qobject_cast<QAction*>(sender());
+	if (act) {
+		changeColorTable(act->data().toString());
+	}
+}
 
 void nView::setLockColors(bool val) {
 	lockColors=val;
@@ -143,6 +200,11 @@ void nView::showPhys(nPhysD *my_phys) {
 		if (!physList.contains(my_phys)) {
 			physList << my_phys;
 			connect(my_phys, SIGNAL(destroyed(QObject*)), this, SLOT(delPhys(QObject*)));
+			emit addPhys(my_phys);
+			QMainWindow *my_win=qobject_cast<QMainWindow*>(parent());
+			if (my_win) {
+				my_win->setWindowTitle(QString::fromStdString(my_phys->getName()));
+			}
 		}
 		DEBUG("<><<><><");
 

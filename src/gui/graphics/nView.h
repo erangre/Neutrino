@@ -43,13 +43,12 @@ class nView : public QGraphicsView {
 
 public:
     nView (QWidget *parent=0);
-
+	~nView ();
     void resizeEvent (QResizeEvent *);
 
     // events
     void keyPressEvent (QKeyEvent *);
     void keyReleaseEvent (QKeyEvent *);
-
 
     // zoom
     QTransform trasformazione;
@@ -80,6 +79,11 @@ public:
 
 public slots:
 
+	void contextMenuEvent(QContextMenuEvent *ev);
+
+	void saveDefaults();
+	void showAction();
+
     void zoomOut();
     void zoomIn();
     void zoomEq();
@@ -100,7 +104,8 @@ public slots:
     void setMouseShape(int);
 
 
-    void changeColorTable (QString);
+	void actionChangeColorTable();
+	void changeColorTable (QString);
     void changeColorTable ();
 
     void previousColorTable ();
@@ -141,6 +146,7 @@ signals:
     void mouseReleaseEvent_sig(QPointF);
     void zoomChanged(double);
     void bufferChanged(nPhysD*);
+	void addPhys(nPhysD*);
     void logging(QString);
 };
 
