@@ -51,7 +51,6 @@ public:
     void keyReleaseEvent (QKeyEvent *);
 
     // zoom
-    QTransform trasformazione;
     bool fillimage;
     void incrzoom(double);
 
@@ -147,7 +146,8 @@ signals:
     void zoomChanged(double);
     void bufferChanged(nPhysD*);
 	void addPhys(nPhysD*);
-    void logging(QString);
+	void delPhys(nPhysD*);
+	void logging(QString);
 };
 
 #endif

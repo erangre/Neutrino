@@ -28,20 +28,23 @@
 #include <QApplication>
 #include <QSettings>
 #include <QDebug>
-
-class holderGUI;
+#include "holderGUI.h"
 
 class nApp : public QApplication {
 	Q_OBJECT
+
 public:
 	nApp( int &argc, char **argv );
 
-	QPointer<holderGUI> my_holder;
+private:
+	static QPointer<holderGUI> my_holder;
+
+public:
+	static QPointer<holderGUI> holder() {return nApp::my_holder;};
+
 protected:
 	virtual bool notify(QObject *rec, QEvent *ev) override;
-
 	bool event(QEvent *ev) override;
-
 
 public slots:
 	//    QList<neutrino*> neus();

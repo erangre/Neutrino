@@ -5,11 +5,10 @@
 #include "debug-messages.h"
 
 #include "nApp.h"
-#include "holderGUI.h"
 
+QPointer<holderGUI> nApp::my_holder;
 
-nApp::nApp( int &argc, char **argv ) : QApplication(argc, argv),
-    my_holder(new holderGUI())
+nApp::nApp( int &argc, char **argv ) : QApplication(argc, argv)
 {
 	setAttribute(Qt::AA_UseHighDpiPixmaps);
 
@@ -29,8 +28,9 @@ nApp::nApp( int &argc, char **argv ) : QApplication(argc, argv),
 	QStringList args=arguments();
 	args.removeFirst();
 
+	my_holder=new holderGUI();
 	if (args.size())
-		my_holder->openFiles(args);
+		holder()->openFiles(args);
 }
 
 
@@ -50,8 +50,8 @@ bool nApp::notify(QObject *rec, QEvent *ev)
 
 bool nApp::event(QEvent *ev) {
 	qDebug() << ev;
-	if (ev->type() == QEvent::FileOpen && (!my_holder.isNull())) {
-		my_holder->openFiles(QStringList(static_cast<QFileOpenEvent *>(ev)->file()));
+	if (ev->type() == QEvent::FileOpen) {
+		holder()->openFiles(QStringList(static_cast<QFileOpenEvent *>(ev)->file()));
 	} else {
 		return QApplication::event(ev);
 	}

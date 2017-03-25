@@ -1,10 +1,12 @@
-#ifndef __HolderGUI
-#define __HolderGUI
+#ifndef __holderGUI
+#define __holderGUI
 
 #include "ui_holderGUI.h"
 #include "nPhysD.h"
 
-class holderGUI: public QMainWindow, private std::vector<nPhysD*>, private Ui::holderGUI {
+class nView;
+
+class holderGUI: public QMainWindow, private Ui::holderGUI {
 	Q_OBJECT
 
 public:
@@ -12,16 +14,18 @@ public:
 
 public slots:
 
-	std::vector<nPhysD*> fileOpen(std::string fname);
+	std::vector<nPhysD*> fileOpen(QString fname);
 	void on_actionOpen_triggered();
+
 	void on_actionViewer_triggered();
-	void openFiles(QStringList fnames);
+	std::vector<nPhysD*> openFiles(QStringList fnames);
 	void delPhys(QObject* my_phys);
 	void addViewPhys(nPhysD* my_phys);
+	void delViewPhys(nPhysD* my_phys);
 
-	void on_treeWidget_itemPressed(QTreeWidgetItem* item, int i);
-	void on_treeWidget_itemSelectionChanged();
-	void on_treeWidget_itemDoubleClicked(QTreeWidgetItem* item, int i);
+	void on_physList_itemPressed(QListWidgetItem* item);
+	void on_physList_itemSelectionChanged();
+	void on_physList_itemDoubleClicked(QListWidgetItem* item);
 
 	void keyPressEvent (QKeyEvent *);
 	void logging(QString msg);
@@ -29,6 +33,17 @@ public slots:
 	void dragEnterEvent(QDragEnterEvent *);
 	void dragMoveEvent(QDragMoveEvent *);
 	void dropEvent(QDropEvent *);
+
+	void registerPhys(nPhysD*);
+	void registerViewer(nView*);
+	void unregisterViewer(QObject*);
+
+	std::vector<nPhysD*> allPhys();
+
+	void loadDefaults();
+	void saveDefaults();
+
+	void closeEvent(QCloseEvent *e);
 
 signals:
 	void nPhysDSelected(nPhysD*);
@@ -38,6 +53,8 @@ signals:
 
 private:
 	QPointer<QMainWindow> physViewer;
+	int physUID;
+	int viewerUID;
 };
 
 

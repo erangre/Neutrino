@@ -1,7 +1,9 @@
 #include "nPhysD.h"
+#include "nApp.h"
 
 nPhysD::nPhysD(physD *ref) : physD(*ref) {
 	delete ref;
+	nApp::holder()->registerPhys(this);
 	DEBUG("------------------>>>>>>>>>>>>>" << getName());
 }
 

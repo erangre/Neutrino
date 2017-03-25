@@ -62,7 +62,7 @@ list (APPEND SOURCES
     main.cc
     nApp.cc
     nPhysD.cc
-    HolderGUI/HolderGUI.cc
+	holderGUI/holderGUI.cc
     graphics/nView.cc
 	graphics/nViewPalettes.cc
     graphics/nMouse.cc

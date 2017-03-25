@@ -24,7 +24,7 @@
  */
 #include <QMenu>
 #include "nView.h"
-#include "holderGUI.h"
+#include "nApp.h"
 
 nView::~nView () {
 	saveDefaults();
@@ -37,6 +37,8 @@ nView::nView (QWidget *parent) : QGraphicsView (parent),
     currentBuffer(nullptr)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
+
+	nApp::holder()->registerViewer(this);
 
 	DEBUG("HERE I AM");
 
@@ -70,7 +72,6 @@ nView::nView (QWidget *parent) : QGraphicsView (parent),
 	my_scene.addItem(&my_mouse);
 	my_scene.addItem(&my_tics);
 
-	trasformazione.reset();
 	fillimage=true;
 	setMouseTracking(true);
 	setInteractive(true);
@@ -180,6 +181,7 @@ void nView::delPhys(QObject *my_obj) {
 		qDebug() << "here";
 		int pos=std::max(physList.indexOf(my_phys)-1,0);
 		physList.removeAll(my_phys);
+		emit delPhys(my_phys);
 		if (physList.size()==0) {
 			currentBuffer=nullptr;
 			my_pixitem.setPixmap(QPixmap(":icons/icon.png"));
