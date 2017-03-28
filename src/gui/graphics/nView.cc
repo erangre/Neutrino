@@ -28,6 +28,7 @@
 
 nView::~nView () {
 	saveDefaults();
+	qDebug() << this;
 }
 
 
@@ -38,7 +39,7 @@ nView::nView (QWidget *parent) : QGraphicsView (parent),
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 
-	nApp::holder()->registerViewer(this);
+	nApp::holder()->treeViewers->registerViewer(this);
 
 	DEBUG("HERE I AM");
 
@@ -181,7 +182,7 @@ void nView::delPhys(QObject *my_obj) {
 		qDebug() << "here";
 		int pos=std::max(physList.indexOf(my_phys)-1,0);
 		physList.removeAll(my_phys);
-		emit delPhys(my_phys);
+		emit delViewPhys(my_phys);
 		if (physList.size()==0) {
 			currentBuffer=nullptr;
 			my_pixitem.setPixmap(QPixmap(":icons/icon.png"));
@@ -198,50 +199,36 @@ void nView::delPhys(QObject *my_obj) {
 
 void nView::showPhys(nPhysD *my_phys) {
 	if (my_phys) {
-		DEBUG("<><<><><");
 		if (!physList.contains(my_phys)) {
 			physList << my_phys;
 			connect(my_phys, SIGNAL(destroyed(QObject*)), this, SLOT(delPhys(QObject*)));
-			emit addPhys(my_phys);
+			emit addViewPhys(my_phys);
 			QMainWindow *my_win=qobject_cast<QMainWindow*>(parent());
 			if (my_win) {
 				my_win->setWindowTitle(QString::fromStdString(my_phys->getName()));
 			}
 		}
-		DEBUG("<><<><><");
 
 		if (currentBuffer) {
-			DEBUG("<><<><><");
 			if (lockColors) {
-				DEBUG("<><<><><");
 				my_phys->prop["display_range"]=currentBuffer->prop["display_range"];
 				my_phys->prop["gamma"]=currentBuffer->prop["gamma"];
 			} else {
-				DEBUG("<><<><><");
 				if (!my_phys->prop.have("gamma")) {
 					my_phys->prop["gamma"]=property("neuSave-gamma").toInt();
 				}
-				DEBUG("<><<><><");
 			}
-			DEBUG("<><<><><");
 		}
-		DEBUG("<><<><><");
 
 		if (!my_phys->prop.have("display_range")) {
-			DEBUG("<><<><><");
 			my_phys->prop["display_range"]= my_phys->get_min_max();
-		} else {
-			DEBUG("<><<><><");
 		}
 
 		currentBuffer=my_phys;
-		DEBUG("<><<><><");
 
 		createQimage();
 
-		DEBUG("<><<><><");
 		emit bufferChanged(my_phys);
-		DEBUG("<><<><><");
 	}
 }
 
@@ -645,6 +632,31 @@ void nView::nextBuffer() {
 	if (physList.size()>1) {
 		int position=physList.indexOf(currentBuffer);
 		if (position>-1) showPhys(physList.at((position+1)%physList.size()));
+	}
+}
+
+void nView::dragEnterEvent(QDragEnterEvent *e)
+{
+	emit logging(tr("Drop content"));
+	e->acceptProposedAction();
+}
+
+void nView::dragMoveEvent(QDragMoveEvent *e)
+{
+	e->accept();
+}
+
+void nView::dropEvent(QDropEvent *e) {
+	if (e->mimeData()->hasFormat("data/neutrino")) {
+		e->acceptProposedAction();
+		QList<QByteArray> my_data=e->mimeData()->data("data/neutrino").split(' ');
+		foreach(QByteArray bytephys, my_data) {
+			bool ok=false;
+			nPhysD *my_phys=(nPhysD *) bytephys.toLongLong(&ok);
+			if (ok && my_phys) {
+				showPhys(my_phys);
+			}
+		}
 	}
 }
 

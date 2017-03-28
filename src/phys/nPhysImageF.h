@@ -1,7 +1,7 @@
 /*
  *
  *	Copyright (C) 2013 Alessandro Flacco, Tommaso Vinci All Rights Reserved
- * 
+ *
  *	This file is part of nPhysImage library.
  *
  *	nPhysImage is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  *	You should have received a copy of the GNU Lesser General Public License
  *	along with neutrino.  If not, see <http://www.gnu.org/licenses/>.
  *
- *	Contact Information: 
+ *	Contact Information:
  *	Alessandro Flacco <alessandro.flacco@polytechnique.edu>
  *	Tommaso Vinci <tommaso.vinci@polytechnique.edu>
  *
@@ -89,310 +89,310 @@ typedef std::string phys_type;
 
 class phys_properties : public anymap {
 
-	public:
-		phys_properties()
-			: anymap()
-		{
-			(*this)["origin"] = vec2f(0,0);
-			(*this)["scale"] = vec2f(1,1);
-		}
+public:
+	phys_properties()
+	    : anymap()
+	{
+		(*this)["origin"] = vec2f(0,0);
+		(*this)["scale"] = vec2f(1,1);
+	}
 
 };
 
 struct phys_point_str {
-        size_t x;
-        size_t y;
+	size_t x;
+	size_t y;
 };
 typedef struct phys_point_str phys_point;
 
 
 template<class T>
 class nPhysImageF {
-	public:
-		//! creates empty nPhys
-		nPhysImageF();
+public:
+	//! creates empty nPhys
+	nPhysImageF();
 
-		//! creates named empty nPhys
-		nPhysImageF(std::string, phys_type=PHYS_DYN);
+	//! creates named empty nPhys
+	nPhysImageF(std::string, phys_type=PHYS_DYN);
 
-		//! creates named nPhys, performing a DEEP copy from the passed reference
-		nPhysImageF(const nPhysImageF<T> &, std::string=std::string("copy")); // copy constructor --->> REALLOCATION!
+	//! creates named nPhys, performing a DEEP copy from the passed reference
+	nPhysImageF(const nPhysImageF<T> &, std::string=std::string("copy")); // copy constructor --->> REALLOCATION!
 
-		//! creates flat, named nPhys
-		nPhysImageF(size_t, size_t, T, std::string = std::string());
+	//! creates flat, named nPhys
+	nPhysImageF(size_t, size_t, T, std::string = std::string());
 
-		//! named copy from buffer (to be revisited)
-		nPhysImageF(T *, size_t, size_t, std::string = std::string());
+	//! named copy from buffer (to be revisited)
+	nPhysImageF(T *, size_t, size_t, std::string = std::string());
 
-		//! memento mori
-		~nPhysImageF();
-
-
-		//! resize existing object. WARNING: existing data is deleted
-		void resize(size_t new_w, size_t new_h, T val=0)
-		{ sh_data->resize(new_w, new_h, val); }
-
-		//! re-reads buffer for minimum/maximum value
-		void TscanBrightness(void);
-
-		//! 1D get functions for row/column access
-		size_t get_Tvector(enum phys_direction, size_t, size_t, T*, size_t, phys_way orient=PHYS_POS);
-
-		//! 1D set functions for row/column access
-		void set_Tvector(enum phys_direction, size_t, size_t, T*, size_t, phys_way orient=PHYS_POS);
-
-		//! get row specialized function
-		void get_Trow(size_t, size_t, std::vector<T> &);
-
-		std::string class_name ()
-		{ return std::string(typeid(T).name()); }
-
-		//! min/max point coordinates
-		vec2 min_Tv, max_Tv;
-
-		//phys_properties property; now on anymap
-		//anymap property; specialized class: phys_properties
-		phys_properties prop;
-		phys_properties display_property;
-
-		//! Exceptions (should use dException)
-		std::exception E_alloc, E_access, E_unsafe;
-
-		// --------------------- image points and statistics ----------------------------
-
-		//! min/max values 
-		bidimvec<T> get_min_max();
-		T get_min();
-		T get_max();
-
-		// ------------------------------------------------------------------------------
-
-		// operators, internal versions; still need crossed versions
-		nPhysImageF<T> operator+ (const nPhysImageF<T> &) const;
-		nPhysImageF<T> operator+ (T &) const;
-		nPhysImageF<T> operator- (const nPhysImageF<T> &) const;
-		nPhysImageF<T> operator- (T &) const;
-		nPhysImageF<T> operator* (const nPhysImageF<T> &) const;
-		nPhysImageF<T> operator/ (const nPhysImageF<T> &) const;
-
-		// ------------------------------------------------------------------------
-		// x-connections to physData
-		inline size_t getW() const
-		{ return sh_data->getW(); }
-		inline size_t getH() const
-		{ return sh_data->getH(); }
-		inline size_t getSurf() const
-		{ return sh_data->getSurf(); }
-		inline vec2 vsize() const
-		{ return sh_data->vsize(); }
-		T sum()
-		{ return sh_data->sum(); }
-
-		typename std::vector<T>::iterator buf_itr()
-		{ return sh_data->buf_itr(); }
-		const T *data_pointer()
-		{ return sh_data->data_pointer(); }
-
-		void swap_vector(size_t w, size_t h, std::vector<T> &vec) 
-		{ sh_data->swap_vector(w, h, vec); }
-
-		inline T point(size_t x, size_t y, T nan_value=std::numeric_limits<T>::signaling_NaN()) const
-		{ return sh_data->point(x, y, nan_value); }
-
-		inline T point(vec2 vv, T nan_value=std::numeric_limits<T>::signaling_NaN()) const
-		{ return sh_data->point(vv.x(), vv.y(), nan_value); }
-
-		inline T point(size_t xy, T nan_value=std::numeric_limits<T>::signaling_NaN()) const
-		{ return sh_data->point(xy, nan_value); }
-
-		inline void set(size_t x, size_t y, T val)
-		{ sh_data->set(x, y, val); }
-		inline void set(size_t xy, T val)
-		{ sh_data->set(xy, val); }
-
-                inline void set_Trow(size_t index, size_t offset, std::vector<T> &vec)
-                { sh_data->set_Trow(index, offset, vec); }
+	//! memento mori
+	~nPhysImageF();
 
 
-		// ------------------------------------------------------------------------
-		// ------------------------------------------------------------------------
-		// ------------------------------------------------------------------------
+	//! resize existing object. WARNING: existing data is deleted
+	void resize(size_t new_w, size_t new_h, T val=0)
+	{ sh_data->resize(new_w, new_h, val); }
 
-		// assignment operator -- SHALLOW COPY
-		nPhysImageF<T> & operator= (const nPhysImageF<T> &rhs)
-		{
-			DEBUG(10, "shallow copy");
+	//! re-reads buffer for minimum/maximum value
+	void TscanBrightness(void);
 
-			// copy everything
-			prop = rhs.prop; // probably missing DEEP operator
+	//! 1D get functions for row/column access
+	size_t get_Tvector(enum phys_direction, size_t, size_t, T*, size_t, phys_way orient=PHYS_POS);
 
-			Tmaximum_value = rhs.Tmaximum_value;
-			Tminimum_value = rhs.Tminimum_value;
+	//! 1D set functions for row/column access
+	void set_Tvector(enum phys_direction, size_t, size_t, T*, size_t, phys_way orient=PHYS_POS);
 
-			sh_data = rhs.sh_data;
+	//! get row specialized function
+	void get_Trow(size_t, size_t, std::vector<T> &);
 
-			return *this;
+	std::string class_name ()
+	{ return std::string(typeid(T).name()); }
 
-		}
+	//! min/max point coordinates
+	vec2 min_Tv, max_Tv;
+
+	//phys_properties property; now on anymap
+	//anymap property; specialized class: phys_properties
+	phys_properties prop;
+	phys_properties display_property;
+
+	//! Exceptions (should use dException)
+	std::exception E_alloc, E_access, E_unsafe;
+
+	// --------------------- image points and statistics ----------------------------
+
+	//! min/max values
+	bidimvec<T> get_min_max();
+	T get_min();
+	T get_max();
+
+	// ------------------------------------------------------------------------------
+
+	// operators, internal versions; still need crossed versions
+	nPhysImageF<T> operator+ (const nPhysImageF<T> &) const;
+	nPhysImageF<T> operator+ (T &) const;
+	nPhysImageF<T> operator- (const nPhysImageF<T> &) const;
+	nPhysImageF<T> operator- (T &) const;
+	nPhysImageF<T> operator* (const nPhysImageF<T> &) const;
+	nPhysImageF<T> operator/ (const nPhysImageF<T> &) const;
+
+	// ------------------------------------------------------------------------
+	// x-connections to physData
+	inline size_t getW() const
+	{ return sh_data->getW(); }
+	inline size_t getH() const
+	{ return sh_data->getH(); }
+	inline size_t getSurf() const
+	{ return sh_data->getSurf(); }
+	inline vec2 vsize() const
+	{ return sh_data->vsize(); }
+	T sum()
+	{ return sh_data->sum(); }
+
+	typename std::vector<T>::iterator buf_itr()
+	{ return sh_data->buf_itr(); }
+	const T *data_pointer()
+	{ return sh_data->data_pointer(); }
+
+	void swap_vector(size_t w, size_t h, std::vector<T> &vec)
+	{ sh_data->swap_vector(w, h, vec); }
+
+	inline T point(size_t x, size_t y, T nan_value=std::numeric_limits<T>::signaling_NaN()) const
+	{ return sh_data->point(x, y, nan_value); }
+
+	inline T point(vec2 vv, T nan_value=std::numeric_limits<T>::signaling_NaN()) const
+	{ return sh_data->point(vv.x(), vv.y(), nan_value); }
+
+	inline T point(size_t xy, T nan_value=std::numeric_limits<T>::signaling_NaN()) const
+	{ return sh_data->point(xy, nan_value); }
+
+	inline void set(size_t x, size_t y, T val)
+	{ sh_data->set(x, y, val); }
+	inline void set(size_t xy, T val)
+	{ sh_data->set(xy, val); }
+
+	inline void set_Trow(size_t index, size_t offset, std::vector<T> &vec)
+	{ sh_data->set_Trow(index, offset, vec); }
 
 
-		// check for shallowness
-		bool operator== (const nPhysImageF<T> &rhs)
-		{ return (sh_data.get() == rhs.sh_data.get()); } 
-		bool operator!= (const nPhysImageF<T> &rhs)
-		{ return !(sh_data.get() == rhs.sh_data.get()); } 
+	// ------------------------------------------------------------------------
+	// ------------------------------------------------------------------------
+	// ------------------------------------------------------------------------
 
-		template <class U> operator nPhysImageF<U>  () const
-		{
-			DEBUG(5,"cast constructor ------------------------------------");
-			nPhysImageF<U> lhs;
-			//		lhs = new nPhysImageF<U>;
-			lhs.resize(getW(), getH());
+	// assignment operator -- SHALLOW COPY
+	nPhysImageF<T> & operator= (const nPhysImageF<T> &rhs)
+	{
+		DEBUG(10, "shallow copy");
+
+		// copy everything
+		prop = rhs.prop; // probably missing DEEP operator
+
+		Tmaximum_value = rhs.Tmaximum_value;
+		Tminimum_value = rhs.Tminimum_value;
+
+		sh_data = rhs.sh_data;
+
+		return *this;
+
+	}
+
+
+	// check for shallowness
+	bool operator== (const nPhysImageF<T> &rhs)
+	{ return (sh_data.get() == rhs.sh_data.get()); }
+	bool operator!= (const nPhysImageF<T> &rhs)
+	{ return !(sh_data.get() == rhs.sh_data.get()); }
+
+	template <class U> operator nPhysImageF<U>  () const
+	{
+		DEBUG(5,"cast constructor ------------------------------------");
+		nPhysImageF<U> lhs;
+		//		lhs = new nPhysImageF<U>;
+		lhs.resize(getW(), getH());
 #pragma omp parallel for
-			for (size_t ii=0; ii<getSurf(); ii++)
-				lhs.set(ii, U(sh_data->point(ii)));	
-			//lhs.Timg_buffer[i] = U(Timg_buffer[i]);	
+		for (size_t ii=0; ii<getSurf(); ii++)
+			lhs.set(ii, U(sh_data->point(ii)));
+		//lhs.Timg_buffer[i] = U(Timg_buffer[i]);
 
-			lhs.TscanBrightness();
+		lhs.TscanBrightness();
 
-			//lhs->object_name = object_name;
-			//lhs->filename=filename;
-			lhs.prop = prop;
-			return lhs;
-		}
+		//lhs->object_name = object_name;
+		//lhs->filename=filename;
+		lhs.prop = prop;
+		return lhs;
+	}
 
-		//! Returns a DEEP copy of the object 
-		nPhysImageF<T> &copy()
-		{
-			// questo chissa' come funziona...
-			//nPhysImageF<T> *new_img = new nPhysImageF<T>(*this);
+	//! Returns a DEEP copy of the object
+	nPhysImageF<T> &copy()
+	{
+		// questo chissa' come funziona...
+		//nPhysImageF<T> *new_img = new nPhysImageF<T>(*this);
 
-			// a manina la generazione della copia equivarrebbe a:
+		// a manina la generazione della copia equivarrebbe a:
 
-			nPhysImageF<T> *new_img = new nPhysImageF<T>(*this); // questo dovr`a fare riferimento al deep-constructor di physData
-			return *new_img;
+		nPhysImageF<T> *new_img = new nPhysImageF<T>(*this); // questo dovr`a fare riferimento al deep-constructor di physData
+		return *new_img;
 
-			// non sono sicuro delle seguenti cose: 1. se questa roba vive fuori scope, 2. se davvero `e una copia deep
-		}
+		// non sono sicuro delle seguenti cose: 1. se questa roba vive fuori scope, 2. se davvero `e una copia deep
+	}
 
 
-		// get point (to be used for accessing data - no overload)
-		inline T getPoint(double x, double y, T nan_value=std::numeric_limits<T>::quiet_NaN()) {
-			if (x>=0 && y>=0) {
-				size_t x1=(size_t)x;
-				size_t y1=(size_t)y;
-				if (x==x1 && y==y1) return sh_data->point((size_t)x1,(size_t)y1);
-				size_t x2=x1+1;
-				size_t y2=y1+1;
-				if (x2<getW() && y2<getH()) {
-					T data11=sh_data->point(x1, y1);
-					T data12=sh_data->point(x2, y1);
-					T data21=sh_data->point(x1, y2);
-					T data22=sh_data->point(x2, y2);
+	// get point (to be used for accessing data - no overload)
+	inline T getPoint(double x, double y, T nan_value=std::numeric_limits<T>::quiet_NaN()) {
+		if (x>=0 && y>=0) {
+			size_t x1=(size_t)x;
+			size_t y1=(size_t)y;
+			if (x==x1 && y==y1) return sh_data->point((size_t)x1,(size_t)y1);
+			size_t x2=x1+1;
+			size_t y2=y1+1;
+			if (x2<getW() && y2<getH()) {
+				T data11=sh_data->point(x1, y1);
+				T data12=sh_data->point(x2, y1);
+				T data21=sh_data->point(x1, y2);
+				T data22=sh_data->point(x2, y2);
 
-					return (y2-y)*((x2-x)*data11+(x-x1)*data12)+(y-y1)*((x2-x)*data21+(x-x1)*data22);
-				}
+				return (y2-y)*((x2-x)*data11+(x-x1)*data12)+(y-y1)*((x2-x)*data21+(x-x1)*data22);
 			}
-			return nan_value;
 		}
-		inline T getPoint(bidimvec<double> p, T nan_value=std::numeric_limits<T>::quiet_NaN()) {
-			return getPoint(p.x(),p.y(),nan_value);
+		return nan_value;
+	}
+	inline T getPoint(bidimvec<double> p, T nan_value=std::numeric_limits<T>::quiet_NaN()) {
+		return getPoint(p.x(),p.y(),nan_value);
+	}
+
+	inline void set(T val) { //! set a value allover the matrix
+		DEBUG(PRINTVAR(val));
+		for (size_t ii=0; ii<getSurf(); ii++) {
+			sh_data->set(ii, val);
 		}
-
-		inline void set(T val) { //! set a value allover the matrix
-			DEBUG(PRINTVAR(val));
-			for (size_t ii=0; ii<getSurf(); ii++) {
-				sh_data->set(ii, val);
-			}
-			TscanBrightness();
-		}
+		TscanBrightness();
+	}
 
 
-		inline size_t getSizeByIndex(enum phys_direction dir)
-		{ if (dir==PHYS_X) return getW(); if (dir == PHYS_Y) return getH(); return 0; }
+	inline size_t getSizeByIndex(enum phys_direction dir)
+	{ if (dir==PHYS_X) return getW(); if (dir == PHYS_Y) return getH(); return 0; }
 
-		inline bidimvec<size_t> getSize()
-		{ return bidimvec<size_t>(getW(), getH()); }
+	inline bidimvec<size_t> getSize()
+	{ return bidimvec<size_t>(getW(), getH()); }
 
-		inline bool isInside(size_t x, size_t y) {
-			if ((x < getW()) && (y < getH()))
-				return true;
-			return false;
-		}
+	inline bool isInside(size_t x, size_t y) {
+		if ((x < getW()) && (y < getH()))
+			return true;
+		return false;
+	}
 
 
-		nPhysImageF<T> sub(size_t, size_t, size_t, size_t);
+	nPhysImageF<T> sub(size_t, size_t, size_t, size_t);
 
-		// getting and setting properties
-		inline std::string getName()
-		{ return prop["phys_name"]; }
-		void setName(std::string name)
-		{ prop["phys_name"] = name; }
+	// getting and setting properties
+	inline std::string getName()
+	{ return prop["phys_name"]; }
+	void setName(std::string name)
+	{ prop["phys_name"] = name; }
 
-		//tom
-		inline std::string getShortName()
-		{ return prop["phys_short_name"]; }
+	//tom
+	inline std::string getShortName()
+	{ return prop["phys_short_name"]; }
 
-		inline void setShortName(std::string name)
-		{ prop["phys_short_name"] = name; }
+	inline void setShortName(std::string name)
+	{ prop["phys_short_name"] = name; }
 
-		inline std::string getFromName()
-		{ return prop["phys_from_name"]; }
+	inline std::string getFromName()
+	{ return prop["phys_from_name"]; }
 
-		inline void setFromName(std::string name)
-		{ prop["phys_from_name"] = name; }
+	inline void setFromName(std::string name)
+	{ prop["phys_from_name"] = name; }
 
-		inline vec2f get_origin()
-		{ return prop["origin"]; }
+	inline vec2f get_origin()
+	{ return prop["origin"]; }
 
-		inline double get_origin(enum phys_direction direction)
-		{ return (direction==PHYS_X ? vec2f(prop["origin"].get_str()).x() : vec2f(prop["origin"].get_str()).y()); }
+	inline double get_origin(enum phys_direction direction)
+	{ return (direction==PHYS_X ? vec2f(prop["origin"].get_str()).x() : vec2f(prop["origin"].get_str()).y()); }
 
 		inline void set_origin(T val_x, T val_y)
 		{ prop["origin"] = vec2f(val_x,val_y); }
 
-		inline void set_origin(vec2f val) 
-		{ prop["origin"] = val; }
+	inline void set_origin(vec2f val)
+	{ prop["origin"] = val; }
 
-		inline vec2f get_scale()
-		{ return prop["scale"]; }
+	inline vec2f get_scale()
+	{ return prop["scale"]; }
 
-		inline double get_scale(enum phys_direction direction)
-		{ return (direction==PHYS_X ? vec2f(prop["scale"].get_str()).x() : vec2f(prop["scale"].get_str()).y()); }
+	inline double get_scale(enum phys_direction direction)
+	{ return (direction==PHYS_X ? vec2f(prop["scale"].get_str()).x() : vec2f(prop["scale"].get_str()).y()); }
 
 		inline void set_scale(T val_x, T val_y)
 		{ prop["scale"] = vec2f(val_x,val_y); }
 
-		inline void set_scale(vec2f val)
-		{ prop["scale"] = val; }
+	inline void set_scale(vec2f val)
+	{ prop["scale"] = val; }
 
-		inline vec2f to_real(vec2f val) { 
-			vec2f oo, ss; 
-			oo = prop["origin"]; ss = prop["scale"];
-			return vec2f((val.x()-oo.x())*ss.x(),(val.y()-oo.y())*ss.y()); 
-		}
+	inline vec2f to_real(vec2f val) {
+		vec2f oo, ss;
+		oo = prop["origin"]; ss = prop["scale"];
+		return vec2f((val.x()-oo.x())*ss.x(),(val.y()-oo.y())*ss.y());
+	}
 
-		inline vec2f to_pixel(vec2f val) { 
-			vec2f oo, ss; 
-			oo = prop["origin"]; ss = prop["scale"];
-			return vec2f(val.x()/ss.x()+oo.x(),val.y()/ss.y()+oo.y()); 
-		}
+	inline vec2f to_pixel(vec2f val) {
+		vec2f oo, ss;
+		oo = prop["origin"]; ss = prop["scale"];
+		return vec2f(val.x()/ss.x()+oo.x(),val.y()/ss.y()+oo.y());
+	}
 
-		//end
+	//end
 
-		inline phys_type getType()
-		{ return prop["phys_orig"]; }
+	inline phys_type getType()
+	{ return prop["phys_orig"]; }
 
-		void init_Tvariables();
+	void init_Tvariables();
 
 
-	private:
+private:
 
-		//! TODO: pass to bidimvec<T>
-		T Tmaximum_value;
-		T Tminimum_value;
+	//! TODO: pass to bidimvec<T>
+	T Tmaximum_value;
+	T Tminimum_value;
 
-		std::shared_ptr<physData<T> > sh_data;
+	std::shared_ptr<physData<T> > sh_data;
 
 
 
@@ -403,11 +403,11 @@ typedef nPhysImageF<mcomplex> physC;
 
 // --------------------------------------------------------------------------------------------
 
-	template<class T>
+template<class T>
 nPhysImageF<T>::nPhysImageF()
 { }
 
-	template<class T>
+template<class T>
 nPhysImageF<T>::nPhysImageF(std::string obj_name, phys_type pp)
 {
 	init_Tvariables();
@@ -430,11 +430,11 @@ nPhysImageF<T>::nPhysImageF(std::string obj_name, phys_type pp)
 		}
 	}
 	DEBUG("shortname: "<<shortname);
-	setShortName(shortname);	
+	setShortName(shortname);
 }
 
 // copy constructor
-	template<class T>
+template<class T>
 nPhysImageF<T>::nPhysImageF(const nPhysImageF<T> &oth, std::string sName)
 {
 	DEBUG(10, "copy constructor");
@@ -494,7 +494,7 @@ nPhysImageF<T>::~nPhysImageF()
 
 // -----------------------------------------------------------------------
 
-	template<class T> void
+template<class T> void
 nPhysImageF<T>::init_Tvariables()
 {
 
@@ -533,7 +533,7 @@ nPhysImageF<T>::init_Tvariables()
 
 // ----------------------- DATA ACCESS ----------------------------	
 
-	template<class T> size_t
+template<class T> size_t
 nPhysImageF<T>::get_Tvector(enum phys_direction direction, size_t index, size_t offset, T *ptr, size_t size, phys_way orient)
 {
 	// copies a vector to an external buffer (useful for Abel inversion)
@@ -549,8 +549,8 @@ nPhysImageF<T>::get_Tvector(enum phys_direction direction, size_t index, size_t 
 			//ptr[i] = Timg_matrix[index][offset+i];
 			//ptr[i] = Timg_buffer[index*width+offset+i];
 		} else {
-			//if (((offset+1)-size < 0)) 	
-			if (((offset+1) < size)) 	
+			//if (((offset+1)-size < 0))
+			if (((offset+1) < size))
 				copy_len = offset+1;
 			for (size_t i=0; i<copy_len; i++)
 				ptr[i] = sh_data->point(offset-i, index, 0.);
@@ -566,8 +566,8 @@ nPhysImageF<T>::get_Tvector(enum phys_direction direction, size_t index, size_t 
 			//ptr[i] = Timg_matrix[offset+i][index];
 			//ptr[i] = Timg_buffer[(offset+i)*width+index];
 		} else {
-			//if (((offset+1)-size < 0)) 	
-			if (((offset+1) < size)) 	
+			//if (((offset+1)-size < 0))
+			if (((offset+1) < size))
 				copy_len = offset+1;
 			for (size_t i=0; i<copy_len; i++)
 				ptr[i] = sh_data->point(index, offset-i, 0.);
@@ -577,7 +577,7 @@ nPhysImageF<T>::get_Tvector(enum phys_direction direction, size_t index, size_t 
 	return copy_len;
 }
 
-	template<class T> void
+template<class T> void
 nPhysImageF<T>::set_Tvector(enum phys_direction direction, size_t index, size_t offset, T *ptr, size_t size, phys_way orient)
 {
 	// copies a vector to an external buffer (useful for Abel inversion)
@@ -590,14 +590,14 @@ nPhysImageF<T>::set_Tvector(enum phys_direction direction, size_t index, size_t 
 				copy_len = getW()-offset;
 			for (size_t i=0; i<copy_len; i++)
 				sh_data->set(offset+i, index, ptr[i]);
-				//Timg_matrix[index][offset+i] = ptr[i];
+			//Timg_matrix[index][offset+i] = ptr[i];
 		} else {
-			//if (((offset+1) -size < 0)) 	
-			if (((offset+1) < size)) 	
+			//if (((offset+1) -size < 0))
+			if (((offset+1) < size))
 				copy_len = offset+1;
 			for (size_t i=0; i<copy_len; i++)
 				sh_data->set(offset-i, index, ptr[i]);
-				//Timg_matrix[index][offset-i] = ptr[i];
+			//Timg_matrix[index][offset-i] = ptr[i];
 		}
 
 	} else if (direction == PHYS_Y) {
@@ -606,15 +606,15 @@ nPhysImageF<T>::set_Tvector(enum phys_direction direction, size_t index, size_t 
 				copy_len = getH()-offset;
 			for (size_t i=0; i<copy_len; i++)
 				sh_data->set(index, offset+i, ptr[i]);
-				//Timg_matrix[offset+i][index] = ptr[i];
+			//Timg_matrix[offset+i][index] = ptr[i];
 		} else {
-			//if (((offset+1)-size < 0)) 	
-			if (((offset+1) < size)) 	
+			//if (((offset+1)-size < 0))
+			if (((offset+1) < size))
 				copy_len = offset+1;
 			for (size_t i=0; i<copy_len; i++) {
 				sh_data->set(index, offset-i, ptr[i]);
 				//Timg_matrix[offset-i][index] = ptr[i];
-                        }
+			}
 		}
 	}
 }
@@ -641,7 +641,7 @@ nPhysImageF<T>::sub(size_t x, size_t y, size_t Dx, size_t Dy) {
 	}
 	std::ostringstream my_name;
 
-	my_name << "submatrix(" << getName() << "," << x << "," << y << "," << Dx << "," << Dy << ")";	
+	my_name << "submatrix(" << getName() << "," << x << "," << y << "," << Dx << "," << Dy << ")";
 	subphys.setName(my_name.str());
 	subphys.setShortName("submatrix("+getShortName()+")");
 	subphys.setFromName(getFromName());
@@ -659,7 +659,7 @@ nPhysImageF<T>::TscanBrightness() {
 
 #pragma omp parallel for
 		for (size_t i=0; i<getSurf(); i++) {
-			if (std::isfinite(sh_data->point(i))) {	
+			if (std::isfinite(sh_data->point(i))) {
 				if (!found) {
 					Tminimum_value = sh_data->point(i);
 					Tmaximum_value = Tminimum_value;

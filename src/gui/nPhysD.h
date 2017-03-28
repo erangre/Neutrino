@@ -11,7 +11,6 @@ class nPhysD : public QObject, public physD  {
 
 public:
 	nPhysD(physD *ref);
-	nPhysD(physD &ref);
 
 	void TscanBrightness();
 	const unsigned char *to_uchar_palette(std::vector<unsigned char>  &my_palette, std::string palette_name);

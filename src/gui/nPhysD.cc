@@ -3,7 +3,7 @@
 
 nPhysD::nPhysD(physD *ref) : physD(*ref) {
 	delete ref;
-	nApp::holder()->registerPhys(this);
+	nApp::holder()->listPhys->registerPhys(this);
 	DEBUG("------------------>>>>>>>>>>>>>" << getName());
 }
 

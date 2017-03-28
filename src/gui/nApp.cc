@@ -49,7 +49,7 @@ bool nApp::notify(QObject *rec, QEvent *ev)
 
 
 bool nApp::event(QEvent *ev) {
-	qDebug() << ev;
+//	qDebug() << ev;
 	if (ev->type() == QEvent::FileOpen) {
 		holder()->openFiles(QStringList(static_cast<QFileOpenEvent *>(ev)->file()));
 	} else {

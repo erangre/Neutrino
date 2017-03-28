@@ -118,6 +118,10 @@ public slots:
     void prevBuffer();
     void nextBuffer();
 
+	void dragEnterEvent(QDragEnterEvent *);
+	void dragMoveEvent(QDragMoveEvent *);
+	void dropEvent(QDropEvent *);
+
 private:
 
 	void closeEvent(QCloseEvent *event);
@@ -145,8 +149,8 @@ signals:
     void mouseReleaseEvent_sig(QPointF);
     void zoomChanged(double);
     void bufferChanged(nPhysD*);
-	void addPhys(nPhysD*);
-	void delPhys(nPhysD*);
+	void addViewPhys(nPhysD*);
+	void delViewPhys(nPhysD*);
 	void logging(QString);
 };
 
