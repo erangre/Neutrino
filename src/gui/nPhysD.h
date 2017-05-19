@@ -13,13 +13,10 @@ public:
 	nPhysD(physD *ref);
 
 	void TscanBrightness();
-	const unsigned char *to_uchar_palette(std::vector<unsigned char>  &my_palette, std::string palette_name);
 
     double gamma();
 
 	QByteArray to_ByteArray();
-private:
-    std::vector<unsigned char> uchar_buf;
 
 signals:
     void physChanged(nPhysD*);

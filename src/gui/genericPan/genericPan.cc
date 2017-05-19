@@ -31,8 +31,8 @@
 genericPan::genericPan(QWidget *parent, Qt::WindowFlags flags) :
     QMainWindow(parent, flags),
     my_help(new Ui::PanHelp),
-    my_toolbar(new QToolBar(this)),
-    my_statusBar(new QStatusBar(this))
+    my_statusBar(new QStatusBar(this)),
+    my_toolbar(new QToolBar(this))
 {
     
     connect(qApp,SIGNAL(aboutToQuit()),this,SLOT(saveDefaults()));
@@ -664,7 +664,12 @@ genericPan::runThread(void *iparams, ifunc my_func, QString title, int max_calc)
 }
 
 bool genericPan::nPhysExists(nPhysD* phys){
-//    return nparent->getBufferList().contains(phys);
+	std::vector<nPhysD*> v=nApp::holder()->allPhys();
+
+	bool retval=std::find(v.begin(), v.end(), phys) != v.end();
+
+	return retval;
+
 }
 
 void genericPan::set(QString name, QVariant my_val, int occurrence) {

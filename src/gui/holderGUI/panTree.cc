@@ -146,8 +146,8 @@ void panTree::registerPan(genericPan* my_pan) {
 	my_item->setData(1,0,QVariant::fromValue(my_pan));
 	my_item->setExpanded(true);
 	connect(my_pan, SIGNAL(destroyed(QObject*)), this, SLOT(unregisterPan(QObject*)));
-	connect(my_pan, SIGNAL(addPanPhys(genericPan*)), this, SLOT(addPanPhys(genericPan*)));
-	connect(my_pan, SIGNAL(delPanPhys(genericPan*)), this, SLOT(delPanPhys(genericPan*)));
+	connect(my_pan, SIGNAL(addPanPhys(nPhysD*)), this, SLOT(addPanPhys(nPhysD*)));
+	connect(my_pan, SIGNAL(delPanPhys(nPhysD*)), this, SLOT(delPanPhys(nPhysD*)));
 }
 
 void panTree::unregisterPan(QObject *my_obj) {

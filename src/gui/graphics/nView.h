@@ -138,6 +138,10 @@ private:
 
     bool lockColors;
 
+	const unsigned char *to_uchar_palette(std::vector<unsigned char>  &my_palette, std::string palette_name);
+
+	std::map<nPhysD*,std::vector<unsigned char>> uchar_buf;
+
 protected:
     // what does is this for??
     void focusInEvent (QFocusEvent *);

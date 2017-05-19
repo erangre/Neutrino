@@ -23,6 +23,7 @@
  *
  */
 #include <QMenu>
+#include <QMessageBox>
 #include "nView.h"
 #include "nApp.h"
 
@@ -194,6 +195,7 @@ void nView::delPhys(QObject *my_obj) {
 		qDebug() << "here";
 		int pos=std::max(physList.indexOf(my_phys)-1,0);
 		physList.removeAll(my_phys);
+		uchar_buf[my_phys].resize(0);
 		emit delViewPhys(my_phys);
 		if (physList.size()==0) {
 			currentBuffer=nullptr;
@@ -248,10 +250,9 @@ void nView::showPhys(nPhysD *my_phys) {
 void
 nView::createQimage() {
 	//    QApplication::processEvents();
-	DEBUG("<><<><><");
+	DEBUG("<><<><><><><<><><><><<><><><><<><><><><<><><><><<><><><><<><><><><<><><><><<><><><><<><><><><<><><><><<><><><><<><><>");
 	if (currentBuffer && currentBuffer->getSurf()>0) {
-		DEBUG("<><<><><");
-		const unsigned char *nPhys_pointer=currentBuffer->to_uchar_palette(nPalettes[colorTable], colorTable.toStdString());
+		const unsigned char *nPhys_pointer=to_uchar_palette(nPalettes[colorTable], colorTable.toStdString());
 		const QImage tempImage(nPhys_pointer,
 		                       currentBuffer->getW(),
 		                       currentBuffer->getH(),
@@ -265,6 +266,58 @@ nView::createQimage() {
 
 	setSize();
 }
+
+const unsigned char* nView::to_uchar_palette(std::vector<unsigned char>  &my_palette, std::string palette_name) {
+	bidimvec<double> minmax=currentBuffer->prop.have("display_range") ? currentBuffer->prop["display_range"] : currentBuffer->get_min_max();
+	double mini=minmax.first();
+	double maxi=minmax.second();
+	if (my_palette.size()==768) {
+		if (currentBuffer->getSurf()>0) {
+
+			std::vector<unsigned char> *my_uchar = &uchar_buf[currentBuffer];
+
+			qDebug() << my_uchar;
+			qDebug() << my_uchar->size() << currentBuffer->getSurf()*3;
+			DEBUG(currentBuffer->display_property["palette_name"].get_str());
+
+			if (my_uchar->size() &&
+			        currentBuffer->display_property.have("display_range") &&
+			        currentBuffer->display_property.have("palette_name") &&
+			        currentBuffer->display_property.have("gamma") &&
+			        currentBuffer->display_property["display_range"].get_str() == currentBuffer->prop["display_range"].get_str() &&
+			        currentBuffer->display_property["palette_name"].get_str()==palette_name &&
+			        currentBuffer->display_property["gamma"].get_i()==currentBuffer->prop["gamma"].get_i()) {
+
+				DEBUG("reusing old uchar_buf");
+				return &uchar_buf[currentBuffer][0];
+			}
+
+			DEBUG(6,"8bit ["<<currentBuffer->get_min()<<":"<<currentBuffer->get_max() << "] from [" << mini << ":" << maxi<<"]");
+			my_uchar->assign(currentBuffer->getSurf()*3,255);
+
+			double my_gamma=currentBuffer->gamma();
+#pragma omp for
+			for (size_t i=0; i<currentBuffer->getSurf(); i++) {
+				double p=currentBuffer->point(i);
+				if (std::isfinite(p)) {
+					unsigned char val = std::max(0,std::min(255,(int) (255.0*pow((p-mini)/(maxi-mini),my_gamma))));
+					std::copy ( my_palette.begin()+val*3, my_palette.begin()+val*3+3, my_uchar->begin()+3*i);
+				}
+			}
+
+			currentBuffer->display_property["palette_name"]=palette_name;
+			currentBuffer->display_property["gamma"]=currentBuffer->prop["gamma"].get_i();
+			currentBuffer->display_property["display_range"]=currentBuffer->prop["display_range"];
+
+			return &uchar_buf[currentBuffer][0];
+		}
+		WARNING("asking for uchar buffer of empty image");
+	} else {
+		QMessageBox::critical(this,tr("Palette error"),tr("Can't find a suitable palette, please contact developers")+QString::number(my_palette.size()),  QMessageBox::Ok);
+	}
+	return nullptr;
+}
+
 
 void
 nView::previousColorTable () {
