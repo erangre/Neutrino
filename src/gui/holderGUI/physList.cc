@@ -41,6 +41,7 @@ physList::physList(QWidget *parent):
 
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	connect(this, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(itemPressed(QListWidgetItem*)));
+	connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(itemDoubleClicked(QListWidgetItem*)));
 
 }
 
@@ -161,9 +162,24 @@ void physList::itemSelectionChanged() {
 }
 
 void physList::itemDoubleClicked(QListWidgetItem* item) {
+	qDebug() << "here";
+
 	nPhysD *my_phys=item->data(1).value<nPhysD*>();
 	if (my_phys) {
-		emit nPhysDDoubleClick(my_phys);
+
+		qDebug() << "here";
+		QPointer<genericPan> physViewer = new genericPan(this);
+
+		nView *my_view = new nView(physViewer);
+
+		physViewer->setCentralWidget(my_view);
+		physViewer->resize(400,400);
+
+		connect(this, SIGNAL(nPhysDSelected(nPhysD*)), my_view, SLOT(showPhys(nPhysD*)));
+		connect(this, SIGNAL(addPhys(nPhysD*)), my_view, SLOT(showPhys(nPhysD*)));
+
+		my_view->showPhys(my_phys);
+		physViewer->show();
 	}
 
 }

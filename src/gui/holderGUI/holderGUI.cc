@@ -30,25 +30,21 @@ holderGUI::holderGUI() : QMainWindow() ,
 }
 
 void holderGUI::on_actionViewer_triggered() {
-	QPointer<genericPan> physViewer;
-	foreach (physViewer, findChildren<genericPan *>()) {
-		if (qobject_cast<nView*>(physViewer->centralWidget())) break;
+	QPointer<genericPan> physViewer = new genericPan(this);
+	physViewer->show();
+
+	nView *my_view = new nView(physViewer);
+
+	physViewer->setCentralWidget(my_view);
+	physViewer->resize(400,400);
+
+	connect(listPhys, SIGNAL(nPhysDSelected(nPhysD*)), my_view, SLOT(showPhys(nPhysD*)));
+	connect(listPhys, SIGNAL(addPhys(nPhysD*)), my_view, SLOT(showPhys(nPhysD*)));
+
+	for (auto& img: allPhys()) {
+		my_view->showPhys(img);
 	}
-	if (physViewer.isNull()) {
-		physViewer = new genericPan(this);
 
-		nView *my_view = new nView(physViewer);
-
-		physViewer->setCentralWidget(my_view);
-		physViewer->resize(400,400);
-
-		connect(listPhys, SIGNAL(nPhysDSelected(nPhysD*)), my_view, SLOT(showPhys(nPhysD*)));
-		connect(listPhys, SIGNAL(addPhys(nPhysD*)), my_view, SLOT(showPhys(nPhysD*)));
-
-		for (auto& img: allPhys()) {
-			my_view->showPhys(img);
-		}
-	}
 	physViewer->show();
 }
 
