@@ -3,8 +3,9 @@
 
 #include "ui_holderGUI.h"
 #include "nPhysD.h"
-#include "viewerTree.h"
 #include "physList.h"
+#include "viewerTree.h"
+#include "panTree.h"
 
 class nView;
 
@@ -16,6 +17,7 @@ public:
 
 	QPointer<physList> listPhys;
 	QPointer<viewerTree> treeViewers;
+	QPointer<panTree> treePans;
 
 public slots:
 

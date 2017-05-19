@@ -22,11 +22,10 @@
  *	Tommaso Vinci <tommaso.vinci@polytechnique.edu>
  *
  */
-#include "viewerTree.h"
-#include "graphics/nView.h"
-#include "nPhysD.h"
+#include "panTree.h"
+#include "genericPan/genericPan.h"
 
-viewerTree::viewerTree(QWidget *parent):
+panTree::panTree(QWidget *parent):
     QTreeWidget(parent),
     viewerUID(0)
 {
@@ -42,7 +41,7 @@ viewerTree::viewerTree(QWidget *parent):
 	connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(itemSelectionChanged()));
 }
 
-void viewerTree::mousePressEvent(QMouseEvent *e) {
+void panTree::mousePressEvent(QMouseEvent *e) {
 	dragitems.clear();
 	foreach (QTreeWidgetItem * item, selectedItems()) {
 		dragitems << item;
@@ -52,40 +51,40 @@ void viewerTree::mousePressEvent(QMouseEvent *e) {
 	QTreeWidget::mousePressEvent(e);
 }
 
-void viewerTree::mouseMoveEvent(QMouseEvent *e) {
-	if (dragitems.size() && (dragposition - e->pos()).manhattanLength()>=QApplication::startDragDistance() && dragtime.elapsed() > qApp->startDragTime() ) {
-		nView* my_view=qobject_cast<nView *> (parent());
-		if (my_view) {
-			QByteArray dragPhysPointers;
-			QList<QUrl> lista;
-			foreach (QTreeWidgetItem * item, dragitems) {
-				nPhysD *my_phys=(nPhysD*) (item->data((columnCount()-1),0).value<void*>());
-				if (my_phys) {
-					dragPhysPointers+=QByteArray::number((qlonglong) my_phys)+ " ";
-					lista << QUrl(QString::fromUtf8(my_phys->getName().c_str()));
-				}
-			}
-			if (lista.size()) {
-				QMimeData *mymimeData=new QMimeData;
-				mymimeData->setUrls(lista);
-				mymimeData->setData(QString("data/neutrino"), dragPhysPointers);
-				QDrag *drag = new QDrag(this);
-				drag->setMimeData(mymimeData);
-				drag->exec();
-			}
-		}
-	}
+void panTree::mouseMoveEvent(QMouseEvent *e) {
+//	if (dragitems.size() && (dragposition - e->pos()).manhattanLength()>=QApplication::startDragDistance() && dragtime.elapsed() > qApp->startDragTime() ) {
+//		genericPan* my_view=qobject_cast<genericPan *> (parent());
+//		if (my_view) {
+//			QByteArray dragPhysPointers;
+//			QList<QUrl> lista;
+//			foreach (QTreeWidgetItem * item, dragitems) {
+//				genericPan *my_phys=(genericPan*) (item->data((columnCount()-1),0).value<void*>());
+//				if (my_phys) {
+//					dragPhysPointers+=QByteArray::number((qlonglong) my_phys)+ " ";
+//					lista << QUrl(QString::fromUtf8(my_phys->getName().c_str()));
+//				}
+//			}
+//			if (lista.size()) {
+//				QMimeData *mymimeData=new QMimeData;
+//				mymimeData->setUrls(lista);
+//				mymimeData->setData(QString("data/neutrino"), dragPhysPointers);
+//				QDrag *drag = new QDrag(this);
+//				drag->setMimeData(mymimeData);
+//				drag->exec();
+//			}
+//		}
+//	}
 }
 
-void viewerTree::mouseReleaseEvent(QMouseEvent *e) {
+void panTree::mouseReleaseEvent(QMouseEvent *e) {
 	dragitems.clear();
-	nView* my_view=qobject_cast<nView *> (parent());
-	if (my_view) {
+	genericPan* my_pan=qobject_cast<genericPan *> (parent());
+	if (my_pan) {
 		if (e->modifiers() == Qt::NoModifier) {
 			QTreeWidgetItem *item=itemAt(e->pos());
 			if (item) {
-				nPhysD *phys=(nPhysD*) (item->data(columnCount()-1,Qt::DisplayRole).value<void*>());
-				my_view->showPhys(phys);
+//				genericPan *my_pan=(genericPan*) (item->data(columnCount()-1,Qt::DisplayRole).value<void*>());
+//				my_pan->showPhys(phys);
 			}
 		}
 	}
@@ -93,65 +92,65 @@ void viewerTree::mouseReleaseEvent(QMouseEvent *e) {
 }
 
 // Drag and Drop
-void viewerTree::dragEnterEvent(QDragEnterEvent *e)
+void panTree::dragEnterEvent(QDragEnterEvent *e)
 {
 	e->acceptProposedAction();
 }
 
-void viewerTree::dragMoveEvent(QDragMoveEvent *e)
+void panTree::dragMoveEvent(QDragMoveEvent *e)
 {
 	e->acceptProposedAction();
 }
 
-void viewerTree::dropEvent(QDropEvent *e) {
-	nView* my_view=qobject_cast<nView *> (parent());
-	if (my_view) {
-		my_view->dropEvent(e);
+void panTree::dropEvent(QDropEvent *e) {
+	genericPan* my_pan=qobject_cast<genericPan *> (parent());
+	if (my_pan) {
+//		my_pan->dropEvent(e);
 	}
 	e->acceptProposedAction();
 	dragitems.clear();
 }
 
 
-void viewerTree::itemPressed(QTreeWidgetItem* itemPhys, int col) {
+void panTree::itemPressed(QTreeWidgetItem* itemPhys, int col) {
 	qDebug() << "here";
 	if (itemPhys->parent()) {
-		nView *my_view=itemPhys->parent()->data(1,0).value<nView*>();
-		if (my_view) {
-			my_view->showPhys(itemPhys->data(1,0).value<nPhysD*>());
+		genericPan *my_pan=itemPhys->parent()->data(1,0).value<genericPan*>();
+		if (my_pan) {
+//			my_pan->showPhys(itemPhys->data(1,0).value<genericPan*>());
 		}
 	}
 }
 
-void viewerTree::itemSelectionChanged() {
+void panTree::itemSelectionChanged() {
 	QList<QTreeWidgetItem *> items=selectedItems();
 	if (items.size()==1) {
-		nPhysD *my_phys=items.first()->data(1,0).value<nPhysD*>();
-		if(my_phys) {
+		genericPan *my_pan=items.first()->data(1,0).value<genericPan*>();
+		if(my_pan) {
 			if (items.first()->parent()) {
-				nView *my_view=items.first()->parent()->data(1,0).value<nView*>();
+				genericPan *my_view=items.first()->parent()->data(1,0).value<genericPan*>();
 				if (my_view) {
-					my_view->showPhys(items.first()->data(1,0).value<nPhysD*>());
+//					my_view->showPhys(items.first()->data(1,0).value<genericPan*>());
 				}
 			}
 		}
 	}
 }
 
-void viewerTree::itemDoubleClicked(QTreeWidgetItem* item, int col) {
+void panTree::itemDoubleClicked(QTreeWidgetItem* item, int col) {
 
 }
 
-void viewerTree::registerViewer(nView* my_view) {
-	QTreeWidgetItem *my_item=new QTreeWidgetItem(this, QStringList("Viewer "+ QString::number(viewerUID++)));
-	my_item->setData(1,0,QVariant::fromValue(my_view));
+void panTree::registerPan(genericPan* my_pan) {
+	QTreeWidgetItem *my_item=new QTreeWidgetItem(this, QStringList("genericPan "+ QString::number(viewerUID++)));
+	my_item->setData(1,0,QVariant::fromValue(my_pan));
 	my_item->setExpanded(true);
-	connect(my_view, SIGNAL(destroyed(QObject*)), this, SLOT(unregisterViewer(QObject*)));
-	connect(my_view, SIGNAL(addViewPhys(nPhysD*)), this, SLOT(addViewPhys(nPhysD*)));
-	connect(my_view, SIGNAL(delViewPhys(nPhysD*)), this, SLOT(delViewPhys(nPhysD*)));
+	connect(my_pan, SIGNAL(destroyed(QObject*)), this, SLOT(unregisterPan(QObject*)));
+	connect(my_pan, SIGNAL(addPanPhys(genericPan*)), this, SLOT(addPanPhys(genericPan*)));
+	connect(my_pan, SIGNAL(delPanPhys(genericPan*)), this, SLOT(delPanPhys(genericPan*)));
 }
 
-void viewerTree::unregisterViewer(QObject *my_obj) {
+void panTree::unregisterPan(QObject *my_obj) {
 	qDebug() << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << my_obj;
 	for (int i=0; i< topLevelItemCount() ; i++) {
 		QTreeWidgetItem *item = topLevelItem(i);
@@ -161,8 +160,8 @@ void viewerTree::unregisterViewer(QObject *my_obj) {
 	}
 }
 
-void viewerTree::addViewPhys (nPhysD* my_phys) {
-	nView* my_view=qobject_cast<nView*>(sender());
+void panTree::addPanPhys (nPhysD* my_phys) {
+	genericPan* my_view=qobject_cast<genericPan*>(sender());
 	if (my_view) {
 		for (int i=0; i< topLevelItemCount() ; i++) {
 			QTreeWidgetItem *item = topLevelItem(i);
@@ -177,8 +176,8 @@ void viewerTree::addViewPhys (nPhysD* my_phys) {
 	}
 }
 
-void viewerTree::delViewPhys (nPhysD* my_phys) {
-	nView* my_view=qobject_cast<nView*>(sender());
+void panTree::delPanPhys (nPhysD* my_phys) {
+	genericPan* my_view=qobject_cast<genericPan*>(sender());
 	if (my_view) {
 		for (int i=0; i< topLevelItemCount() ; i++) {
 			QTreeWidgetItem *item = topLevelItem(i);
@@ -194,17 +193,17 @@ void viewerTree::delViewPhys (nPhysD* my_phys) {
 	}
 }
 
-void viewerTree::keyPressEvent (QKeyEvent *event) {
+void panTree::keyPressEvent (QKeyEvent *event) {
 	QTreeWidget::keyPressEvent(event);
 	for (auto& item: selectedItems()) {
-		nPhysD *my_phys=item->data(1,0).value<nPhysD*>();
+		genericPan *my_phys=item->data(1,0).value<genericPan*>();
 		if(my_phys) {
 			if (item->parent()) {
-				nView *my_view=item->parent()->data(1,0).value<nView*>();
+				genericPan *my_view=item->parent()->data(1,0).value<genericPan*>();
 				if (my_view) {
 					switch (event->key()) {
 						case Qt::Key_Backspace:
-							my_view->delPhys(my_phys);
+//							my_view->delPhys(my_phys);
 							break;
 						default:
 							break;

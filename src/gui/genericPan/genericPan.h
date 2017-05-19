@@ -35,13 +35,14 @@
 #include <QPrintDialog>
 
 #include <iostream>
-#include "nPhysImageF.h"
+#include "nPhysD.h"
 #include "panThread.h"
 
-#ifndef __generic_pan
-#define __generic_pan
+#include "ui_nSbarra.h"
 
-#include "nPanPlug.h"
+#ifndef __genericPan
+#define __genericPan
+
 
 namespace Ui {
 class PanHelp;
@@ -66,21 +67,26 @@ public slots:
 };
 
 
-class nGenericPan : public QMainWindow {
+class genericPan : public QMainWindow {
     Q_OBJECT
 
 public:
-    nGenericPan(){};
-    nGenericPan();
-    ~nGenericPan(){};
+	genericPan(QWidget *parent, Qt::WindowFlags flags = Qt::WindowFlags() );
+	~genericPan(){};
 
     // thread stuff
     panThread nThread;
 
     Ui::PanHelp *my_help;
 
+	QPointer<QStatusBar> my_statusBar;
+	QPointer<QToolBar> my_toolbar;
+	Ui::nSbarra my_sbarra;
+
 signals:
     void changeCombo(QComboBox*);
+	void addPanPhys(nPhysD*);
+	void delPanPhys(nPhysD*);
 
 
 public slots:

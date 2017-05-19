@@ -5,57 +5,45 @@
 #include <QTreeWidgetItem>
 
 #include "graphics/nView.h"
+#include "genericPan/genericPan.h"
 
 holderGUI::holderGUI() : QMainWindow() ,
     listPhys(new physList(this)),
-    treeViewers(new viewerTree(this))
+    treeViewers(new viewerTree(this)),
+    treePans(new panTree(this))
 {
 	setupUi(this);
 
-	QGridLayout *tab1_layout=new QGridLayout(this);
-	tab_phys->setLayout(tab1_layout);
+	QGridLayout *tab1_layout=new QGridLayout(tab_phys);
 	tab1_layout->setContentsMargins(0, 0, 0, 0);
 	tab1_layout->addWidget(listPhys);
 
-	QGridLayout *tab2_layout=new QGridLayout(this);
-	tab_viewers->setLayout(tab2_layout);
+	QGridLayout *tab2_layout=new QGridLayout(tab_viewers);
 	tab2_layout->setContentsMargins(0, 0, 0, 0);
 	tab2_layout->addWidget(treeViewers);
 
-	treeViewers->setHeaderHidden(true);
-	QFont my_font=treeViewers->font();
-	my_font.setPointSize(10);
-	treeViewers->setFont(my_font);
-	listPhys->setFont(my_font);
+	QGridLayout *tab3_layout=new QGridLayout(tab_pans);
+	tab3_layout->setContentsMargins(0, 0, 0, 0);
+	tab3_layout->addWidget(treePans);
 
 	show();
 }
 
 void holderGUI::on_actionViewer_triggered() {
-	QPointer<QMainWindow> physViewer;
-	foreach (physViewer, findChildren<QMainWindow *>()) {
+	QPointer<genericPan> physViewer;
+	foreach (physViewer, findChildren<genericPan *>()) {
 		if (qobject_cast<nView*>(physViewer->centralWidget())) break;
 	}
 	if (physViewer.isNull()) {
-		physViewer = new QMainWindow(this);
-		physViewer->setAttribute(Qt::WA_DeleteOnClose);
+		physViewer = new genericPan(this);
 
-		physViewer->setUnifiedTitleAndToolBarOnMac(true);
 		nView *my_view = new nView(physViewer);
-		physViewer->setAttribute(Qt::WA_DeleteOnClose);
 
 		physViewer->setCentralWidget(my_view);
 		physViewer->resize(400,400);
 
-		QStatusBar *statusBar = new QStatusBar(physViewer);
-		QFont my_font(statusBar->font());
-		my_font.setPointSize(10);
-		statusBar->setFont(my_font);
-		physViewer->setStatusBar(statusBar);
-
 		connect(listPhys, SIGNAL(nPhysDSelected(nPhysD*)), my_view, SLOT(showPhys(nPhysD*)));
 		connect(listPhys, SIGNAL(addPhys(nPhysD*)), my_view, SLOT(showPhys(nPhysD*)));
-		connect(my_view, SIGNAL(logging(QString)), statusBar, SLOT(showMessage(QString)));
 
 		for (auto& img: allPhys()) {
 			my_view->showPhys(img);
@@ -131,6 +119,8 @@ void holderGUI::dropEvent(QDropEvent *e) {
 		foreach (QUrl qurl, e->mimeData()->urls()) {
 			openFiles(QStringList(qurl.toLocalFile()));
 		}
+	} else {
+		qDebug() << "here";
 	}
 }
 
@@ -160,6 +150,7 @@ std::vector<nPhysD*> holderGUI::fileOpen(QString fname) {
 	std::vector<nPhysD*> retlist;
 
 	for (auto &my_phys : phys_open(fname.toStdString())) {
+		DEBUG(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		nPhysD* my_nphys=new nPhysD(my_phys);
 		retlist.push_back(my_nphys);
 	}

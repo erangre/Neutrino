@@ -63,13 +63,15 @@ list (APPEND SOURCES
     nApp.cc
     nPhysD.cc
 	holderGUI/holderGUI.cc
-	holderGUI/viewerTree.cc
 	holderGUI/physList.cc
+	holderGUI/viewerTree.cc
+	holderGUI/panTree.cc
 	graphics/nView.cc
 	graphics/nViewPalettes.cc
     graphics/nMouse.cc
     graphics/nTics.cc
-#	genericPan/nGenericPan.cc
+	genericPan/genericPan.cc
+	genericPan/panThread.cc
 
 #     neutrino.cc
 #     nGenericPan.cc panThread.cc nPluginLoader.cc nPlug.cc nPanPlug.cc
@@ -91,6 +93,11 @@ list (APPEND SOURCES
 # 
 #     nHolder.cc
     )
+
+# sub-structure (wrong: we should probably replicate CMakeLists.txt in every subfolder)
+#include_directories(graphics doc pans pans/colorbar pans/winlist)
+include_directories(holderGUI genericPan)
+
 
 # this is just to make the appera on QtCreator
 list (APPEND HEADERS
@@ -163,10 +170,6 @@ qt5_add_resources(RES_SOURCES ${LICENSES_QRC})
 
 QT5_WRAP_UI( UI_HEADERS ${UIS} )
 MESSAGE(STATUS "UI files: ${UIS}\n ${UI_HEADERS}") 
-
-# sub-structure (wrong: we should probably replicate CMakeLists.txt in every subfolder)
-#include_directories(graphics doc pans pans/colorbar pans/winlist)
-include_directories(holderGUI)
 
 #translate ui
 

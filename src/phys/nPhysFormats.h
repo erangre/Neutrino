@@ -144,11 +144,13 @@ T swap_endian(T u)
 //operator>> (std::istream &, phys_properties &);
 
 // dump out for state save
-void phys_dump_binary(physD*my_phys, const char *ofile);
+void phys_dump_binary(physD*my_phys, const char &ofile);
 
-void phys_dump_binary(physD*, std::ofstream &);
+void phys_dump_binary(std::vector<physD *> my_physvec, const char &ofile);
 
-void phys_dump_ascii(physD*, std::ofstream &);
+void phys_dump_binary(physD*, std::ostream &);
+
+void phys_dump_ascii(physD*, std::ostream &);
 
 int
 phys_resurrect_binary(physD*, std::ifstream &);

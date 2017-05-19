@@ -437,7 +437,7 @@ nPhysImageF<T>::nPhysImageF(std::string obj_name, phys_type pp)
 template<class T>
 nPhysImageF<T>::nPhysImageF(const nPhysImageF<T> &oth, std::string sName)
 {
-	DEBUG(10, "copy constructor");
+	DEBUG(10, "copy constructor " << oth.getSurf());
 	init_Tvariables();
 	resize(oth.getW(), oth.getH());
 
@@ -445,7 +445,6 @@ nPhysImageF<T>::nPhysImageF(const nPhysImageF<T> &oth, std::string sName)
 	//std::copy(oth.Timg_buffer, oth.Timg_buffer+getSurf(), Timg_buffer);
 	
 	// this is probably MUCH MUCH slower. It has to be tested
-	DEBUG(10, "my size: "<<getSurf());
 	for (size_t ii=0; ii<getSurf(); ii++) {
 		set(ii, oth.point(ii));
 	}

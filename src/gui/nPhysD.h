@@ -17,6 +17,7 @@ public:
 
     double gamma();
 
+	QByteArray to_ByteArray();
 private:
     std::vector<unsigned char> uchar_buf;
 

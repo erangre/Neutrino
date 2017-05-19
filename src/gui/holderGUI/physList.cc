@@ -25,6 +25,7 @@
 #include "physList.h"
 #include "graphics/nView.h"
 #include "nPhysD.h"
+#include "nApp.h"
 
 physList::physList(QWidget *parent):
     QListWidget(parent),
@@ -33,78 +34,70 @@ physList::physList(QWidget *parent):
 	qDebug() << "ctor";
 	qDebug() << parent->parent();
 	setAcceptDrops(true);
+
+	QFont my_font=QListWidget::font();
+	my_font.setPointSize(10);
+	setFont(my_font);
+
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
 	connect(this, SIGNAL(itemPressed(QListWidgetItem*)), this, SLOT(itemPressed(QListWidgetItem*)));
 
 }
 
 void physList::mousePressEvent(QMouseEvent *e) {
-    dragitems.clear();
-	foreach (QListWidgetItem * item, selectedItems()) {
-        dragitems << item;
-    }
+	qDebug() << "here" << selectedItems();
+
+	dragitems =  QListWidget::selectedItems();
     dragposition=e->pos();
     dragtime.start();
 	QListWidget::mousePressEvent(e);
 }
 
 void physList::mouseMoveEvent(QMouseEvent *e) {
-    if (dragitems.size() && (dragposition - e->pos()).manhattanLength()>=QApplication::startDragDistance() && dragtime.elapsed() > qApp->startDragTime() ) {
-		nView* my_view=qobject_cast<nView *> (parent());
-		if (my_view) {
-            QByteArray dragPhysPointers;
-            QList<QUrl> lista;
-			foreach (QListWidgetItem * item, dragitems) {
-				nPhysD *my_phys=(nPhysD*) (item->data(1).value<void*>());
-                if (my_phys) {
-                    dragPhysPointers+=QByteArray::number((qlonglong) my_phys)+ " ";
-                    lista << QUrl(QString::fromUtf8(my_phys->getName().c_str()));
-                }
-            }
-            if (lista.size()) {
-                QMimeData *mymimeData=new QMimeData;
-                mymimeData->setUrls(lista);
-                mymimeData->setData(QString("data/neutrino"), dragPhysPointers);
-                QDrag *drag = new QDrag(this);
-                drag->setMimeData(mymimeData);
-                drag->exec();
-            }
-        }
-    }
+	if (dragitems.size() && (dragposition - e->pos()).manhattanLength()>=QApplication::startDragDistance() && dragtime.elapsed() > QApplication::startDragTime() ) {
+		qDebug() << "here" << e->pos();
+		QByteArray dragPhysPointers;
+		foreach (QListWidgetItem * item, dragitems) {
+			nPhysD *my_phys=item->data(1).value<nPhysD*>();
+			if (my_phys) {
+				qDebug() << "here";
+				dragPhysPointers+=my_phys->to_ByteArray();
+			}
+		}
+		qDebug() << dragPhysPointers.size();
+		if (dragPhysPointers.size()) {
+//			qDebug() << "here" << e->pos() << dragPhysPointers;
+			QMimeData *mymimeData=new QMimeData;
+			mymimeData->setData(QString("data/neutrino"), dragPhysPointers);
+			QDrag *drag = new QDrag(this);
+			drag->setMimeData(mymimeData);
+			drag->exec();
+		}
+		dragitems.clear();
+	}
 }
 
 void physList::mouseReleaseEvent(QMouseEvent *e) {
     dragitems.clear();
-	nView* my_view=qobject_cast<nView *> (parent());
-	if (my_view) {
-        if (e->modifiers() == Qt::NoModifier) {
-			QListWidgetItem *item=itemAt(e->pos());
-            if (item) {
-				nPhysD *phys=(nPhysD*) (item->data(1).value<void*>());
-				my_view->showPhys(phys);
-            }
-        }
-    }
 	QListWidget::mouseReleaseEvent(e);
 }
 
 // Drag and Drop
 void physList::dragEnterEvent(QDragEnterEvent *e)
 {
+	qDebug() << "here" << e;
     e->acceptProposedAction();
 }
 
 void physList::dragMoveEvent(QDragMoveEvent *e)
 {
-    e->acceptProposedAction();
+	qDebug() << "here" << e;
+	e->acceptProposedAction();
 }
 
 void physList::dropEvent(QDropEvent *e) {
-	nView* my_view=qobject_cast<nView *> (parent());
-	if (my_view) {
-		my_view->dropEvent(e);
-    }
-    e->acceptProposedAction();
-    dragitems.clear();
+	nApp::holder()->dropEvent(e);
+	dragitems.clear();
 }
 
 void physList::keyPressEvent (QKeyEvent *event) {

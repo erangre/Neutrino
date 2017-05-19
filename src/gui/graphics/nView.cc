@@ -66,8 +66,20 @@ nView::nView (QWidget *parent) : QGraphicsView (parent),
 
 	my_scene.views().at(0)->viewport()->setCursor(QCursor(Qt::CrossCursor));
 	setCursor(QCursor(Qt::CrossCursor));
+	QObject *obj_parent=parent;
 
-	if (!parent) ERROREXIT("nView problem");
+	if (obj_parent) {
+		while (obj_parent) {
+			my_pan = qobject_cast<genericPan*>(obj_parent);
+			if (my_pan) {
+				break;
+			} else {
+				obj_parent=obj_parent->parent();
+			}
+		}
+	}
+	if (my_pan.isNull())
+		ERROREXIT("nView problem it should be inside a geenricPan");
 
 	my_scene.addItem(&my_pixitem);
 	my_scene.addItem(&my_mouse);
@@ -322,6 +334,7 @@ void nView::swipeTriggered(QSwipeGesture *gesture)
 }
 
 void nView::focusInEvent (QFocusEvent *) {
+	DEBUG("here");
 }
 
 void nView::zoomEq() {
@@ -375,10 +388,10 @@ void nView::keyPressEvent (QKeyEvent *e)
 		switch (e->key()) {
 			case Qt::Key_Backspace: {
 					if (itemObj && itemObj->property("parentPanControlLevel").toInt()==0){
-						emit logging(tr("Removed ")+item->toolTip());
+						my_pan->my_statusBar->showMessage(tr("Removed ")+item->toolTip(),5000);
 						itemObj->deleteLater();
 					} else {
-						emit logging(tr("Can't remove ")+item->toolTip());
+						my_pan->my_statusBar->showMessage(tr("Can't remove ")+item->toolTip(),5000);
 					}
 					break;
 				}
@@ -506,6 +519,10 @@ void nView::keyPressEvent (QKeyEvent *e)
 				setGamma(1);
 			}
 			break;
+		case Qt::Key_G:
+			my_tics.gridVisible=!my_tics.gridVisible;
+			my_tics.update();
+			break;
 	}
 
 	update();
@@ -515,6 +532,8 @@ void nView::keyPressEvent (QKeyEvent *e)
 void nView::setGamma(int value) {
 	if (currentBuffer) {
 		currentBuffer->prop["gamma"]=value;
+		double gamma_val=currentBuffer->gamma();
+		my_pan->my_sbarra.gamma->setText(QString(QChar(0x03B3))+" "+QString(gamma_val<1? "1/"+ QString::number(int(1.0/gamma_val)) : QString::number(int(gamma_val))));
 		createQimage();
 		emit bufferChanged(currentBuffer);
 	}
@@ -534,7 +553,7 @@ nView::changeColorTable (QString ctname) {
 void
 nView::changeColorTable () {
 	createQimage();
-	emit logging(colorTable);
+	my_pan->my_statusBar->showMessage(colorTable,1000);
 	my_tics.update();
 	emit updatecolorbar();
 }
@@ -605,7 +624,7 @@ void nView::mouseMoveEvent (QMouseEvent *e)
 	QGraphicsView::mouseMoveEvent(e);
 	if (QGraphicsItem *item = itemAt(e->pos())) {
 		if (item->flags() && QGraphicsItem::ItemIsFocusable) {
-			emit logging (item->toolTip());
+			my_pan->my_statusBar->showMessage(item->toolTip(),1000);
 		}
 	}
 
@@ -615,6 +634,21 @@ void nView::mouseMoveEvent (QMouseEvent *e)
 		double val=currentBuffer->point(mapToScene(e->pos()).x(),mapToScene(e->pos()).y());
 		minMax=vec2f(std::min(minMax.x(),val),std::max(minMax.y(),val));
 	}
+	my_pan->my_sbarra.pos_x->setNum((int)pos_mouse.x());
+	my_pan->my_sbarra.pos_y->setNum((int)pos_mouse.y());
+
+	if (currentBuffer) {
+		vec2f vec=currentBuffer->to_real(vec2f(pos_mouse.x(),pos_mouse.y()));
+		QPointF pos=QPointF(vec.x(),vec.y());
+		my_pan->my_sbarra.dx->setNum(pos.x());
+		my_pan->my_sbarra.dy->setNum(pos.y());
+		double val=currentBuffer->point(pos_mouse.x(),pos_mouse.y());
+		my_pan->my_sbarra.pos_z->setNum(val);
+	} else {
+		my_pan->my_sbarra.dx->setText("");
+		my_pan->my_sbarra.dy->setText("");
+	}
+
 	emitMouseposition(pos_mouse);
 }
 
@@ -637,12 +671,12 @@ void nView::nextBuffer() {
 
 void nView::dragEnterEvent(QDragEnterEvent *e)
 {
-	emit logging(tr("Drop content"));
 	e->acceptProposedAction();
 }
 
 void nView::dragMoveEvent(QDragMoveEvent *e)
 {
+	my_pan->my_statusBar->showMessage(tr("Drop content"),1000);
 	e->accept();
 }
 

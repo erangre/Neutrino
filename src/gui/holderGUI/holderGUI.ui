@@ -56,7 +56,7 @@
         <string>Viewer</string>
        </attribute>
       </widget>
-      <widget class="QWidget" name="tab_3">
+      <widget class="QWidget" name="tab_pans">
        <attribute name="title">
         <string>Tools</string>
        </attribute>

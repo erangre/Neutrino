@@ -535,18 +535,31 @@ physUint_imd::physUint_imd(std::string ifilename)
 // dump out for state save
 void phys_dump_binary(physD *my_phys, const char *fname) {
 	std::ofstream ofile(fname, std::ios::out | std::ios::binary);
-	phys_dump_binary(my_phys,ofile);
+//	std::ostringstream ss;
+//	phys_dump_binary(my_phys,ss);
+//	unsigned int sslen=ss.str().size();
+//	ofile << sslen << "\n";
+//	ofile << ss.str();
+	phys_dump_binary(my_phys, ofile);
 }
 
-void phys_dump_binary(physD *my_phys, std::ofstream &ofile) {
+void phys_dump_binary(std::vector<physD *> my_physvec, const char *fname) {
+	std::ofstream ofile(fname, std::ios::out | std::ios::binary);
+	int vecsize=my_physvec.size();
+	ofile.write((const char *)&vecsize, sizeof (int));
+	for (auto& my_phys: my_physvec) {
+		phys_dump_binary(my_phys, ofile);
+	}
+}
 
-	if (!ofile.fail() && my_phys != NULL) {
+void phys_dump_binary(physD *my_phys, std::ostream &ostr) {
+	if (!ostr.fail() && my_phys != NULL) {
 
 		//int pos = ofile.tellg();
 		//int written_data = 0;
 
 		//ofile<<my_phys->property<<"\n";
-		my_phys->prop.dumper(ofile);
+		my_phys->prop.dumper(ostr);
 
 		DEBUG("Starting binary dump...");
 
@@ -586,17 +599,17 @@ void phys_dump_binary(physD *my_phys, std::ofstream &ofile) {
 		DEBUG(5,"writtendata " << writtendata);
 
 		int oo = my_phys->getW();
-		ofile.write((const char *)&oo, sizeof(int));
+		ostr.write((const char *)&oo, sizeof(int));
 		oo = my_phys->getH();
-		ofile.write((const char *)&oo, sizeof(int));
+		ostr.write((const char *)&oo, sizeof(int));
 
 		//ofile << writtendata << "\n"; // TODO: to be written in binary
-		ofile.write((const char *)&writtendata, sizeof (int));
-		ofile.write((const char *)(&out[0]), sizeof (char)*writtendata);
+		ostr.write((const char *)&writtendata, sizeof (int));
+		ostr.write((const char *)(&out[0]), sizeof (char)*writtendata);
 		DEBUG("Binary dump finished");
 
 		//	ofile.write((const char *)my_phys->Timg_buffer, my_phys->getSurf()*sizeof(double));
-		ofile<<"\n"<<std::flush;
+		ostr<<"\n"<<std::flush;
 
 		//written_data = ofile.tellg()-pos;
 	} else {
@@ -604,7 +617,7 @@ void phys_dump_binary(physD *my_phys, std::ofstream &ofile) {
 	}
 }
 
-void phys_dump_ascii(physD *my_phys, std::ofstream &ofile)
+void phys_dump_ascii(physD *my_phys, std::ostream &ofile)
 {	
 
 	if (ofile.good() && my_phys != NULL) {
@@ -1410,7 +1423,6 @@ phys_resurrect_binary(physD * my_phys, std::ifstream &ifile) {
 		throw phys_fileerror("istream error");
 		return -1;
 	}
-
 	my_phys->prop.loader(ifile);
 
 	// w/h/size binary read

@@ -34,6 +34,8 @@
 #include "nMouse.h"
 #include "nTics.h"
 
+#include "genericPan.h"
+
 #ifndef __nView_h
 #define __nView_h
 
@@ -75,6 +77,8 @@ public:
 
     nPhysD* currentBuffer;
     QList<nPhysD*> physList;
+
+	QPointer<genericPan> my_pan;
 
 public slots:
 
@@ -151,7 +155,6 @@ signals:
     void bufferChanged(nPhysD*);
 	void addViewPhys(nPhysD*);
 	void delViewPhys(nPhysD*);
-	void logging(QString);
 };
 
 #endif
