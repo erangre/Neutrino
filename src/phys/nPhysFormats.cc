@@ -1882,7 +1882,7 @@ std::vector <physD *> phys_open(std::string fname, bool separate_rgb) {
 		std::vector <physD *> imagelist=phys_open_inf(fname);
 		retPhys.insert(retPhys.end(), imagelist.begin(), imagelist.end());
 	} else if (ext=="sif") {
-		datamatrix = new physD;
+		datamatrix = new physD();
 		*datamatrix = physInt_sif(fname.c_str());
 	} else if (ext=="b16") {
 		datamatrix = new physD;

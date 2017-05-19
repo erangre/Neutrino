@@ -246,18 +246,24 @@ public:
 	{
 		DEBUG(5,"cast constructor ------------------------------------");
 		nPhysImageF<U> lhs;
+		DEBUG(5,"cast constructor ------------------------------------");
 		//		lhs = new nPhysImageF<U>;
 		lhs.resize(getW(), getH());
+		DEBUG(5,"cast constructor ------------------------------------");
 #pragma omp parallel for
 		for (size_t ii=0; ii<getSurf(); ii++)
 			lhs.set(ii, U(sh_data->point(ii)));
+		DEBUG(5,"cast constructor ------------------------------------");
 		//lhs.Timg_buffer[i] = U(Timg_buffer[i]);
 
+		DEBUG(5,"cast constructor ------------------------------------");
 		lhs.TscanBrightness();
 
+		DEBUG(5,"cast constructor ------------------------------------");
 		//lhs->object_name = object_name;
 		//lhs->filename=filename;
 		lhs.prop = prop;
+		DEBUG(5,"cast constructor ------------------------------------");
 		return lhs;
 	}
 
@@ -383,7 +389,6 @@ public:
 	inline phys_type getType()
 	{ return prop["phys_orig"]; }
 
-	void init_Tvariables();
 
 
 private:
@@ -405,13 +410,19 @@ typedef nPhysImageF<mcomplex> physC;
 
 template<class T>
 nPhysImageF<T>::nPhysImageF()
-{ }
+{
+	sh_data = std::make_shared<physData<T> > ();
+
+	min_Tv=vec2(-1,-1);
+	max_Tv=vec2(-1,-1);
+
+	Tmaximum_value = 0;
+	Tminimum_value = 0;
+}
 
 template<class T>
-nPhysImageF<T>::nPhysImageF(std::string obj_name, phys_type pp)
+nPhysImageF<T>::nPhysImageF(std::string obj_name, phys_type pp): nPhysImageF()
 {
-	init_Tvariables();
-
 	if (pp == PHYS_FILE) {
 		// real file
 		//setName(obj_name);
@@ -435,10 +446,9 @@ nPhysImageF<T>::nPhysImageF(std::string obj_name, phys_type pp)
 
 // copy constructor
 template<class T>
-nPhysImageF<T>::nPhysImageF(const nPhysImageF<T> &oth, std::string sName)
+nPhysImageF<T>::nPhysImageF(const nPhysImageF<T> &oth, std::string sName): nPhysImageF()
 {
 	DEBUG(10, "copy constructor " << oth.getSurf());
-	init_Tvariables();
 	resize(oth.getW(), oth.getH());
 
 	//	memcpy(Timg_buffer, oth.Timg_buffer, getSurf()*sizeof(T));
@@ -455,34 +465,12 @@ nPhysImageF<T>::nPhysImageF(const nPhysImageF<T> &oth, std::string sName)
 	//	std::cerr<<"end copy constructor ------------------------------------"<<std::endl;
 }
 
-
 template<class T>
-nPhysImageF<T>::nPhysImageF(size_t w, size_t h, T val, std::string obj_name)
+nPhysImageF<T>::nPhysImageF(size_t w, size_t h, T val, std::string obj_name): nPhysImageF()
 {
-	init_Tvariables();
 	setName(obj_name);
-
 	resize(w, h, val);
 }
-
-
-
-template<class T>
-nPhysImageF<T>::nPhysImageF(T *o_buffer, size_t w, size_t h, std::string obj_name) {
-
-	throw phys_trashable();
-	init_Tvariables();
-
-	setName(obj_name);
-	resize(w, h);
-
-	//memcpy(Timg_buffer, o_buffer, getSurf()*sizeof(T));
-	for (size_t ii=0; ii<getSurf(); ii++) {
-		set(ii, o_buffer[ii]);
-	}
-
-}
-
 
 template<class T>
 nPhysImageF<T>::~nPhysImageF()
@@ -492,21 +480,6 @@ nPhysImageF<T>::~nPhysImageF()
 }
 
 // -----------------------------------------------------------------------
-
-template<class T> void
-nPhysImageF<T>::init_Tvariables()
-{
-
-	sh_data = std::make_shared<physData<T> > ();
-
-	min_Tv=vec2(-1,-1);
-	max_Tv=vec2(-1,-1);
-
-	Tmaximum_value = 0;
-	Tminimum_value = 0;
-
-
-}
 
 //template<class T> void
 //nPhysImageF<T>::_init_temp_pointers()
