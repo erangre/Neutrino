@@ -4,14 +4,26 @@
 #include <QMenu>
 
 nPluginLoader::nPluginLoader(QString pname, neutrino *neu)
-    : QPluginLoader(pname), iface(nullptr), nParent(neu)
+    : iface(nullptr), nParent(neu)
 {
 
 
 	  setLoadHints(QLibrary::ResolveAllSymbolsHint | QLibrary::ExportExternalSymbolsHint);
-
-      qDebug() << "------------------------------------------------------------------------------";
+      setFileName(pname);
+      qDebug() << "------------------------------";
       qDebug() << "Parsing lib " << pname  << " loadHints:" << loadHints();
+      bool is_loaded=load();
+      qDebug() << is_loaded;
+      qDebug() << isLoaded();
+      qDebug() << "------------------------------";
+      qDebug() << metaData().keys();
+      for (auto &i : metaData().keys()) {
+          qDebug() << i << metaData().value(i);
+      }
+      qDebug() << "------------------------------";
+      qDebug() << errorString();
+      qDebug() << "------------------------------";
+
       QObject *p_obj = instance();
 
       if (p_obj) {

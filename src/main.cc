@@ -41,7 +41,12 @@ void my_handler(int s){
 
 int main(int argc, char **argv)
 {
-#ifndef __WIN32
+#ifdef __WIN32
+    AllocConsole();
+    freopen("conin$", "r", stdin);
+    freopen("conout$", "w", stdout);
+    freopen("conout$", "w", stderr);
+#else
     struct sigaction sigIntHandler;
 
     sigIntHandler.sa_handler = my_handler;

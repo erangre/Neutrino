@@ -1,7 +1,7 @@
 /*
  *
  *    Copyright (C) 2013 Alessandro Flacco, Tommaso Vinci All Rights Reserved
- * 
+ *
  *    This file is part of neutrino.
  *
  *    Neutrino is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  *    You should have received a copy of the GNU Lesser General Public License
  *    along with neutrino.  If not, see <http://www.gnu.org/licenses/>.
  *
- *    Contact Information: 
+ *    Contact Information:
  *	Alessandro Flacco <alessandro.flacco@polytechnique.edu>
  *	Tommaso Vinci <tommaso.vinci@polytechnique.edu>
  *
@@ -25,7 +25,7 @@
 /*
  *
  *    Copyright (C) 2013 Alessandro Flacco, Tommaso Vinci All Rights Reserved
- * 
+ *
  *    This file is part of neutrino.
  *
  *    Neutrino is free software: you can redistribute it and/or modify
@@ -41,7 +41,7 @@
  *    You should have received a copy of the GNU Lesser General Public License
  *    along with neutrino.  If not, see <http://www.gnu.org/licenses/>.
  *
- *    Contact Information: 
+ *    Contact Information:
  *	Alessandro Flacco <alessandro.flacco@polytechnique.edu>
  *	Tommaso Vinci <tommaso.vinci@polytechnique.edu>
  *
@@ -77,9 +77,12 @@ protected:
 
 };
 
-Q_DECLARE_INTERFACE(nPanPlug, "org.neutrino.plug")
+Q_DECLARE_INTERFACE(nPanPlug, __neutrino_signature)
 
-#define NEUTRINO_PLUGIN1(__class_name,__menu_entry, __menu_icon) class __class_name ## Plug : public QObject, nPanPlug {  Q_OBJECT  Q_INTERFACES(nPanPlug) Q_PLUGIN_METADATA(IID "org.neutrino.panPlug")  public: __class_name## Plug() {qRegisterMetaType<__class_name *>(name()+"*");} QByteArray name() {return #__class_name;} QString menuEntryPoint() { return QString(#__menu_entry); } QIcon icon() {return QIcon(__menu_icon);} };
+#define STRINGIFY(x) #x
+#define TOKENPASTE(x, y) STRINGIFY(x ## y)
+
+#define NEUTRINO_PLUGIN1(__class_name,__menu_entry, __menu_icon) class Q_DECL_EXPORT __class_name##Plug : public QObject, nPanPlug {  Q_OBJECT  Q_INTERFACES(nPanPlug) Q_PLUGIN_METADATA(IID __neutrino_signature FILE TOKENPASTE(__class_name, json) )  public: __class_name##Plug() {qRegisterMetaType<__class_name *>(name()+"*");} QByteArray name() {return #__class_name;} QString menuEntryPoint() { return QString(#__menu_entry); } QIcon icon() {return QIcon(__menu_icon);} };
 #define NEUTRINO_PLUGIN2(__class_name,__menu_entry) NEUTRINO_PLUGIN1(__class_name,__menu_entry, )
 #define NEUTRINO_PLUGIN3(__class_name) NEUTRINO_PLUGIN1(__class_name, , )
 #define NEUTRINO_PLUGIN4(arg1,arg2,arg3,arg4,...) arg4

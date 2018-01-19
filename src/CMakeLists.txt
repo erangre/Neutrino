@@ -38,7 +38,7 @@ file(GLOB UIS ${CMAKE_CURRENT_SOURCE_DIR}/../UIs/*.ui)
 
 list (APPEND SOURCES
 	neutrino.cc
-	nGenericPan.cc panThread.cc nPluginLoader.cc nPlug.cc nPanPlug.cc
+	nGenericPan.cc panThread.cc nPluginLoader.cc nPanPlug.cc
 
 	nApp.cc main.cc
 
@@ -201,7 +201,7 @@ if(APPLE)
 	set(MACOSX_BUNDLE_LONG_VERSION_STRING "${${PROJECT_NAME}_VERSION_STRING_FULL}")
 	set(MACOSX_BUNDLE_COPYRIGHT "Copyright ${PROJECT_COPYRIGHT_YEAR} Tommaso Vinci, Alessandro Flacco. GNU General Public License v2.0")
 
-	add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${myApp_ICON} ${SOURCES} ${MOC_SRCS} ${UI_HEADERS} ${RES_SOURCES} ${ICONS_QRC} ${HTML_QRC} ${qm_files})
+	add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${myApp_ICON} ${SOURCES} ${MOC_SRCS} ${UI_HEADERS} ${RES_SOURCES} ${ICONS_QRC} ${HTML_QRC} ${qm_files} nPlug.h)
 	target_link_libraries(Neutrino "-framework IOKit -framework CoreFoundation")
 
 	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/../resources/macPackage/neutrino.plist.cmake" ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)

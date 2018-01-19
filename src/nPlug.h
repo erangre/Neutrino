@@ -83,7 +83,9 @@ public slots:
 
 };
 
-Q_DECLARE_INTERFACE(nPlug, "org.neutrino.plug")
+#define __neutrino_signature "org.neutrino.panPlug"
+
+Q_DECLARE_INTERFACE(nPlug, __neutrino_signature)
 
 #endif
 

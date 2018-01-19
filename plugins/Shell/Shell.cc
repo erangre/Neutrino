@@ -8,76 +8,74 @@
 
 
 
-bool ShellPlug::instantiate(neutrino *neu) {
-    nparent=neu;
-
-    PythonQt::init(PythonQt::IgnoreSiteModule|PythonQt::RedirectStdOut);
-
-    PythonQt_init_QtBindings();
-    PythonQt::self()->addDecorators(new nPhysPyWrapper());
-    PythonQt::self()->registerCPPClass("nPhysD",NULL,"neutrino");
-
-    PythonQt::self()->addDecorators(new nPanPyWrapper());
-    PythonQt::self()->registerClass(& nGenericPan::staticMetaObject, "nPan", PythonQtCreateObject<nPanPyWrapper>);
-
-    PythonQt::self()->registerClass(& nCustomPlot::staticMetaObject, "nPlot");
-    PythonQt::self()->registerClass(&nLine::staticMetaObject, "nLine");
-    PythonQt::self()->registerClass(&nRect::staticMetaObject, "nRect");
-    PythonQt::self()->registerClass(&nEllipse::staticMetaObject, "nEllipse");
-    PythonQt::self()->registerClass(&nPoint::staticMetaObject, "nPoint");
-
-    PythonQt::self()->addDecorators(new nPyWrapper());
-    PythonQt::self()->registerClass(& neutrino::staticMetaObject, "neutrino", PythonQtCreateObject<nPyWrapper>);
-
-    QSettings settings("neutrino","");
-    settings.beginGroup("Shell");
-    foreach (QString spath, settings.value("siteFolder").toString().split(QRegExp("\\s*:\\s*"))) {
-        qDebug() << "Python site folder " << spath;
-        if (QFileInfo(spath).isDir()) PythonQt::self()->addSysPath(spath);
-    }
-    settings.endGroup();
-
-    PythonQt::self()->getMainModule().addObject("nApp", qApp);
-
-
-    QPointer<QMenu> menuPython = nPluginLoader::getMenu(menuEntryPoint(),neu);
-
-//        neu->my_w->toolBar->addAction(QIcon(":/icons/python.png"),"Python");
-
-    neu->my_w->menubar->addMenu(menuPython);
-    settings.beginGroup("Shell");
-    QDir scriptdir(settings.value("scriptsFolder").toString());
-    qDebug() << scriptdir.exists() << scriptdir;
-    if (scriptdir.exists()) {
-        QStringList scriptlist = scriptdir.entryList(QStringList("*.py"));
-        qDebug() << scriptlist;
-
-        if (scriptlist.size() > 0) {
-            foreach (QAction* myaction, menuPython->actions()) {
-                if (QFileInfo(myaction->data().toString()).suffix()=="py")
-                    menuPython->removeAction(myaction);
-            }
-        }
-
-        foreach (QString sname, scriptlist) {
-            QAction *action = new QAction(neu);
-            action->setText(QFileInfo(sname).baseName());
-            qDebug() << "-----------------" << action;
-
-            connect(action, SIGNAL(triggered()), this, SLOT(runPyScript()));
-            action->setData(scriptdir.filePath(sname));
-            menuPython->addAction(action);
-        }
-    }
-    settings.endGroup();
-
-    return nPanPlug::instantiate(neu);
-}
-
-
 Shell::Shell(neutrino *nparent) : nGenericPan(nparent)
 {
-	my_w.setupUi(this);
+
+    if (!qApp->property("pythonInstantiated").isValid()) {
+        PythonQt::init(PythonQt::IgnoreSiteModule|PythonQt::RedirectStdOut);
+
+//        PythonQt_init_QtBindings();
+        PythonQt::self()->addDecorators(new nPhysPyWrapper());
+        PythonQt::self()->registerCPPClass("nPhysD",NULL,"neutrino");
+
+        PythonQt::self()->addDecorators(new nPanPyWrapper());
+        PythonQt::self()->registerClass(& nGenericPan::staticMetaObject, "nPan", PythonQtCreateObject<nPanPyWrapper>);
+
+        PythonQt::self()->registerClass(& nCustomPlot::staticMetaObject, "nPlot");
+        PythonQt::self()->registerClass(&nLine::staticMetaObject, "nLine");
+        PythonQt::self()->registerClass(&nRect::staticMetaObject, "nRect");
+        PythonQt::self()->registerClass(&nEllipse::staticMetaObject, "nEllipse");
+        PythonQt::self()->registerClass(&nPoint::staticMetaObject, "nPoint");
+
+        PythonQt::self()->addDecorators(new nPyWrapper());
+        PythonQt::self()->registerClass(& neutrino::staticMetaObject, "neutrino", PythonQtCreateObject<nPyWrapper>);
+
+        QSettings settings("neutrino","");
+        settings.beginGroup("Shell");
+        foreach (QString spath, settings.value("siteFolder").toString().split(QRegExp("\\s*:\\s*"))) {
+            qDebug() << "Python site folder " << spath;
+            if (QFileInfo(spath).isDir()) PythonQt::self()->addSysPath(spath);
+        }
+        settings.endGroup();
+
+        PythonQt::self()->getMainModule().addObject("nApp", qApp);
+
+
+        QPointer<QMenu> menuPython = nPluginLoader::getMenu("Scripts",nparent);
+
+    //        neu->my_w->toolBar->addAction(QIcon(":/icons/python.png"),"Python");
+
+        nparent->my_w->menubar->addMenu(menuPython);
+        settings.beginGroup("Shell");
+        QDir scriptdir(settings.value("scriptsFolder").toString());
+        qDebug() << scriptdir.exists() << scriptdir;
+        if (scriptdir.exists()) {
+            QStringList scriptlist = scriptdir.entryList(QStringList("*.py"));
+            qDebug() << scriptlist;
+
+            if (scriptlist.size() > 0) {
+                foreach (QAction* myaction, menuPython->actions()) {
+                    if (QFileInfo(myaction->data().toString()).suffix()=="py")
+                        menuPython->removeAction(myaction);
+                }
+            }
+
+            foreach (QString sname, scriptlist) {
+                QAction *action = new QAction(nparent);
+                action->setText(QFileInfo(sname).baseName());
+                qDebug() << "-----------------" << action;
+
+                connect(action, SIGNAL(triggered()), this, SLOT(runPyScript()));
+                action->setData(scriptdir.filePath(sname));
+                menuPython->addAction(action);
+            }
+        }
+        settings.endGroup();
+    } else {
+        qApp->setProperty("pythonInstantiated",true);
+    }
+
+    my_w.setupUi(this);
 
     QFont my_font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
 

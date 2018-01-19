@@ -8,7 +8,7 @@
 #include <QWidget>
 #include <QShortcut>
 
-#include "PythonQt_QtBindings.h"
+//#include "PythonQt_QtBindings.h"
 #include "PythonQt.h"
 
 #include "nGenericPan.h"
@@ -63,64 +63,65 @@ class nPanPyWrapper : public QObject {
 
 };
 
-class ShellPlug : public QObject, nPanPlug {
-    Q_OBJECT Q_INTERFACES(nPanPlug)
-    Q_PLUGIN_METADATA(IID "org.neutrino.panPlug")
+NEUTRINO_PLUGIN(Shell,Scripts,":icons/python.png")
 
-public:
+//class ShellPlug : public QObject, nPanPlug {
+//    Q_OBJECT
+//    Q_INTERFACES(nPanPlug)
+//    Q_PLUGIN_METADATA(IID "org.neutrino.plug")
 
-    ShellPlug() :
-    nparent(nullptr)
-    {
-        qRegisterMetaType<Shell *>(name()+"*");
-    }
+//public:
 
-    QByteArray name() {
-        return "Shell";
-    }
+//    ShellPlug() :
+//    nparent(nullptr)
+//    {
+//        qRegisterMetaType<Shell *>(name()+"*");
+//    }
 
-    QString menuEntryPoint() {
-        return QString("Scripts");
-    }
+//    QByteArray name() {
+//        return "Shell";
+//    }
 
-    nGenericPan* Python()
-    {
-        DEBUG("anyway I'm here " << nparent);
-        if (nparent)
-            return new Shell(nparent);
-    }
+//    QString menuEntryPoint() {
+//        return QString("Scripts");
+//    }
 
-    QIcon icon() {
-        return QIcon(":icons/python.png");
-    }
+//    nGenericPan* Python()
+//    {
+//        DEBUG("anyway I'm here " << nparent);
+//        if (nparent)
+//            return new Shell(nparent);
+//    }
 
-    bool instantiate(neutrino *neu);
+//    QIcon icon() {
+//        return QIcon(":icons/python.png");
+//    }
 
-private:
-    neutrino* nparent;
+//    bool instantiate(neutrino *neu);
 
-public slots:	
-    void
-    runPyScript() {
-        qDebug() << ">><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<";
-        QAction *action = qobject_cast<QAction *>(sender());
-        if (action) {
-            qDebug() << ">>>>>>>>>>>>>>>" << action << ">>>" <<action->data().toString();
-            runPyScript(action->data().toString());
-        }
-    }
+//private:
+//    neutrino* nparent;
 
-    void
-    runPyScript(QString fname) {
-        QFile t(fname);
-        t.open(QIODevice::ReadOnly| QIODevice::Text);
-        PythonQt::self()->getMainModule().evalScript(QTextStream(&t).readAll());
-        t.close();
-    }
+//public slots:
+//    void
+//    runPyScript() {
+//        qDebug() << ">><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<>><<";
+//        QAction *action = qobject_cast<QAction *>(sender());
+//        if (action) {
+//            qDebug() << ">>>>>>>>>>>>>>>" << action << ">>>" <<action->data().toString();
+//            runPyScript(action->data().toString());
+//        }
+//    }
 
+//    void
+//    runPyScript(QString fname) {
+//        QFile t(fname);
+//        t.open(QIODevice::ReadOnly| QIODevice::Text);
+//        PythonQt::self()->getMainModule().evalScript(QTextStream(&t).readAll());
+//        t.close();
+//    }
 
-
-};
+//};
 
 
 #endif

@@ -97,7 +97,7 @@ MACRO(ADD_NEUTRINO_PLUGIN)
 		GET_FILENAME_COMPONENT(my_file_basename ${README_HTML} NAME)
 		file(WRITE ${PANDOC_QRC} "<RCC>\n    <qresource>\n")
 		file(APPEND ${PANDOC_QRC} "        <file alias=\"${my_file_basename}\">${README_HTML}</file>\n")
-		file(APPEND ${PANDOC_QRC} "    </qresource>\n</RCC>")
+		file(APPEND ${PANDOC_QRC} "    </qresource>\n</RCC>\n")
 
 		qt5_add_resources(RES_SOURCES ${PANDOC_QRC})
 
@@ -110,6 +110,11 @@ MACRO(ADD_NEUTRINO_PLUGIN)
 
 		add_custom_target(pandoc${PROJECT_NAME} ALL DEPENDS ${README_HTML} SOURCES ${README_MD})
 	endif()
+
+	# add plugin json file
+	set(JSON_FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}json)
+
+	file(WRITE ${JSON_FILE} "{ \"name\" : \"${PROJECT_NAME}Plug\" , \"toto\" : 123456 }\n")
 
 	## add translations
 	SET(Qt5LinguistTools_DIR "${Qt5_DIR}/../Qt5LinguistTools")
