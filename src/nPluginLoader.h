@@ -1,7 +1,7 @@
 #include <QtGui>
 #include <QMenu>
 
-#include "nPlug.h"
+#include "nPanPlug.h"
 
 #ifndef __nPluginLoader
 #define __nPluginLoader
@@ -15,15 +15,15 @@ class nPluginLoader : public QPluginLoader {
 public:
 	nPluginLoader(QString, neutrino *);
 
-    QString name() {return (iface ? iface->name() : QString("")); }
+    QString name() {return (my_panPlug ? my_panPlug->name() : QString("")); }
 
-    bool ok() { return iface!=nullptr; }
+    bool ok() { return my_panPlug!=nullptr; }
 
     bool unload() {
-        qDebug() << "killing me soflty" << iface;
-        if (iface) {
-            delete iface;
-            iface=nullptr;
+        qDebug() << "killing me soflty" << my_panPlug;
+        if (my_panPlug) {
+            delete my_panPlug;
+            my_panPlug=nullptr;
             nParent=nullptr;
         }
         return QPluginLoader::unload();
@@ -36,7 +36,7 @@ public slots:
 	void launch(void);
 
 private:
-    nPlug *iface;
+    nPanPlug *my_panPlug;
     neutrino *nParent;
 };
 

@@ -51,16 +51,20 @@
 #include <iostream>
 
 #include "nPhysImageF.h"
-#include "nPlug.h"
 #ifndef __npanplug
 #define __npanplug
 
 class neutrino;
 class nGenericPan;
 
-class nPanPlug : public nPlug {
+class nPanPlug {
+
+public:
+    virtual ~nPanPlug() { qDebug() << "here"; }
 
 public slots:
+
+    virtual QByteArray name() { return QByteArray(); }
 
     nGenericPan* pan() { return my_pan;}
 
@@ -72,10 +76,23 @@ public slots:
 
     virtual QIcon icon() { return QIcon(); }
 
+    static QString extension() {
+    #if defined(Q_OS_WIN)
+        return QString("dll");
+    #elif defined(Q_OS_MAC)
+        return QString("dylib");
+    #elif defined(Q_OS_LINUX)
+        return QString("so");
+    #endif
+        return QString("");
+    }
+
 protected:
     QPointer<nGenericPan> my_pan;
 
 };
+
+#define __neutrino_signature "org.neutrino.panPlug"
 
 Q_DECLARE_INTERFACE(nPanPlug, __neutrino_signature)
 

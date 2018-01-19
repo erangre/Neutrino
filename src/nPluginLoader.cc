@@ -4,7 +4,7 @@
 #include <QMenu>
 
 nPluginLoader::nPluginLoader(QString pname, neutrino *neu)
-    : iface(nullptr), nParent(neu)
+    : my_panPlug(nullptr), nParent(neu)
 {
 
 
@@ -27,10 +27,10 @@ nPluginLoader::nPluginLoader(QString pname, neutrino *neu)
       QObject *p_obj = instance();
 
       if (p_obj) {
-          iface = qobject_cast<nPlug *>(p_obj);
-			if (iface) {
+          my_panPlug = qobject_cast<nPanPlug *>(p_obj);
+            if (my_panPlug) {
 
-                QString name_plugin(iface->name());
+                QString name_plugin(my_panPlug->name());
 
                 // in case the interface returns an empty name (default if method not overridden), pick up the name of the file
                 if (name_plugin.isEmpty()) {
@@ -45,9 +45,7 @@ nPluginLoader::nPluginLoader(QString pname, neutrino *neu)
 
                 QIcon icon_plugin;
 
-                nPanPlug *my_panPlug = qobject_cast<nPanPlug *>(p_obj);
 
-                if (my_panPlug) {
                     icon_plugin=my_panPlug->icon();
 
                     qDebug() << "here" << icon_plugin;
@@ -86,8 +84,8 @@ nPluginLoader::nPluginLoader(QString pname, neutrino *neu)
                                 my_qplugin=new QPluginLoader(pname);
                                 p_obj = my_qplugin->instance();
                                 if (p_obj) {
-                                    iface = qobject_cast<nPlug *>(p_obj);
-                                    if (iface) {
+                                    my_panPlug = qobject_cast<nPanPlug *>(p_obj);
+                                    if (my_panPlug) {
                                         qDebug() << "reloaded";
                                     }
                                 }
@@ -105,9 +103,6 @@ nPluginLoader::nPluginLoader(QString pname, neutrino *neu)
                     connect (my_action, SIGNAL(triggered()), this, SLOT(launch()));
                     my_menu->addAction(my_action);
                     qDebug() << "found menu:" << my_menu;
-                } else {
-                    launch();
-                }
 
             } else {
                 QMessageBox dlg(QMessageBox::Critical, tr("Plugin error"),pname+tr(" does not look like a Neutrino plugin"));
@@ -158,12 +153,12 @@ QPointer<QMenu> nPluginLoader::getMenu(QString menuEntry, neutrino* neu) {
 
 void
 nPluginLoader::launch() {
-    qDebug() << iface->name();
+    qDebug() << my_panPlug->name();
 
-    if (iface && nParent) {
-        bool retval = iface->instantiate(nParent);
+    if (my_panPlug && nParent) {
+        bool retval = my_panPlug->instantiate(nParent);
         if (!retval) {
-            QMessageBox dlg(QMessageBox::Critical, tr("Plugin error"),iface->name()+tr(" cannot be instantiated"));
+            QMessageBox dlg(QMessageBox::Critical, tr("Plugin error"),my_panPlug->name()+tr(" cannot be instantiated"));
             dlg.setWindowFlags(dlg.windowFlags() | Qt::WindowStaysOnTopHint);
             dlg.exec();
         }

@@ -489,7 +489,7 @@ void
 neutrino::scanPlugins(QDir pluginsDir) {
 	if (pluginsDir.exists()) {
 		foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-			if (QFileInfo(fileName).suffix() == nPlug::extension()) {
+            if (QFileInfo(fileName).suffix() == nPanPlug::extension()) {
 				loadPlugin(pluginsDir.absoluteFilePath(fileName), false);
 			}
 		}
